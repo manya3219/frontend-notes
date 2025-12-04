@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import OAuth from '../components/OAuth';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
@@ -19,19 +21,28 @@ export default function SignUp() {
     try {
       setLoading(true);
       setErrorMessage(null);
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
+      
+      if (!res.ok) {
+        const text = await res.text();
+        setErrorMessage(text || 'Signup failed');
+        setLoading(false);
+        return;
+      }
+      
       const data = await res.json();
       if (data.success === false) {
-        return setErrorMessage(data.message);
+        setErrorMessage(data.message);
+        setLoading(false);
+        return;
       }
       setLoading(false);
-      if(res.ok) {
-        navigate('/Login');
-      }
+      navigate('/login');
     } catch (error) {
       setErrorMessage(error.message);
       setLoading(false);

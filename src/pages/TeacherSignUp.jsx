@@ -2,6 +2,8 @@ import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export default function TeacherSignUp() {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
@@ -20,19 +22,27 @@ export default function TeacherSignUp() {
     try {
       setLoading(true);
       setErrorMessage(null);
-      const res = await fetch('/api/auth/admin-signup', {
+      const res = await fetch(`${API_URL}/api/auth/admin-signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
+      
+      if (!res.ok) {
+        const text = await res.text();
+        setErrorMessage(text || 'Signup failed');
+        setLoading(false);
+        return;
+      }
+      
       const data = await res.json();
       setLoading(false);
-      if (data.success === false || !res.ok) {
-        return setErrorMessage(data.message || 'Signup failed');
+      if (data.success === false) {
+        setErrorMessage(data.message || 'Signup failed');
+        return;
       }
-      if(res.ok) {
-        navigate('/teacher-login');
-      }
+      navigate('/teacher-login');
     } catch (error) {
       setErrorMessage(error.message);
       setLoading(false);

@@ -9,6 +9,8 @@ import {
 } from '../redux/user/userSlice';
 import OAuth from '../components/OAuth';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export default function Login() {
   const [formData, setFormData] = useState({});
   const { loading, error: errorMessage } = useSelector((state) => state.user);
@@ -24,17 +26,22 @@ export default function Login() {
     }
     try {
       dispatch(loginStart());
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
+      
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Login failed');
+      }
+      
       const data = await res.json();
       if (data.success === false) {
         dispatch(loginFailure(data.message));
-      }
-
-      if (res.ok) {
+      } else {
         dispatch(loginSuccess(data));
         navigate('/home');
       }

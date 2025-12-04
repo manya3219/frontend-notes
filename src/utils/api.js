@@ -1,15 +1,22 @@
-// API utility for handling requests in both development and production
+import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+// Centralized API configuration
+export const API_URL = import.meta.env.VITE_API_URL || '';
 
-/**
- * Make an API request
- * @param {string} endpoint - API endpoint (e.g., '/api/auth/login')
- * @param {object} options - Fetch options
- * @returns {Promise} - Response data
- */
-export const apiRequest = async (endpoint, options = {}) => {
-  const url = API_URL + endpoint;
+// Helper function to build API URLs
+export const getApiUrl = (endpoint) => {
+  // Remove leading slash if present to avoid double slashes
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  return `${API_URL}/${cleanEndpoint}`;
+};
+
+// Configure axios defaults
+axios.defaults.baseURL = API_URL;
+axios.defaults.withCredentials = true;
+
+// Fetch wrapper with better error handling
+export const apiFetch = async (endpoint, options = {}) => {
+  const url = getApiUrl(endpoint);
   
   const defaultOptions = {
     credentials: 'include',
@@ -21,15 +28,13 @@ export const apiRequest = async (endpoint, options = {}) => {
 
   const response = await fetch(url, { ...defaultOptions, ...options });
   
-  // Check if response is JSON
-  const contentType = response.headers.get('content-type');
-  if (contentType && contentType.includes('application/json')) {
-    return response.json();
+  // Check if response is ok before parsing
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || `HTTP error! status: ${response.status}`);
   }
-  
-  // If not JSON, throw error with response text
-  const text = await response.text();
-  throw new Error(text || 'Server returned non-JSON response');
+
+  return response;
 };
 
-export default apiRequest;
+export default API_URL;

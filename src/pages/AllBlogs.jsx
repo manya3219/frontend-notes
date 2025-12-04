@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import { Button, Select, TextInput } from 'flowbite-react';
+import { getApiUrl } from '../utils/api';
 
 export default function AllBlogs() {
   const [posts, setPosts] = useState([]);
@@ -29,7 +30,8 @@ export default function AllBlogs() {
     try {
       setLoading(true);
       const res = await fetch(
-        `/api/post/getposts?sort=${sortOrder}&category=${category}&startIndex=${startIndex}`
+        getApiUrl(`/api/post/getposts?sort=${sortOrder}&category=${category}&startIndex=${startIndex}`),
+        { credentials: 'include' }
       );
       const data = await res.json();
       

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { getApiUrl } from '../utils/api';
 
 
 export default function DashPosts() {
@@ -15,7 +16,9 @@ export default function DashPosts() {
     const fetchPosts = async () => {
       try {
         // Admin sees ALL posts, not just their own
-        const res = await fetch(`/api/post/getposts`);
+        const res = await fetch(getApiUrl(`/api/post/getposts`), {
+          credentials: 'include'
+        });
         const data = await res.json();
         if (res.ok) {
           setUserPosts(data.posts);
@@ -37,7 +40,8 @@ export default function DashPosts() {
     try {
       // Admin sees ALL posts
       const res = await fetch(
-        `/api/post/getposts?startIndex=${startIndex}`
+        getApiUrl(`/api/post/getposts?startIndex=${startIndex}`),
+        { credentials: 'include' }
       );
       const data = await res.json();
       if (res.ok) {

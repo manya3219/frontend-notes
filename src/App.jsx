@@ -18,6 +18,7 @@ import FileList from './pages/FileList'
 import PdfViewer from './pages/PdfViewer'
 import CreatePost from './pages/CreatePost'
 import UpdatePost from './pages/UpdatePost';
+import './utils/api'; // Configure axios defaults
 import PostPage from './pages/PostPage'
 import Search from './pages/Search'
 import VideoUpload from './pages/VideoUpload'

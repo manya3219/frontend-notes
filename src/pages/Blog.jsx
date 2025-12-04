@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import CallToAction from '../components/CallToAction';
 import PostCard from '../components/PostCard';
+import { getApiUrl } from '../utils/api';
 
 export default function Blog() {
   const [posts, setPosts] = useState([]);
@@ -20,7 +21,9 @@ export default function Blog() {
       // Fetch posts if user is authenticated
       const fetchPosts = async () => {
         try {
-          const res = await fetch('/api/post/getPosts');
+          const res = await fetch(getApiUrl('/api/post/getPosts'), {
+            credentials: 'include'
+          });
           const data = await res.json();
           setPosts(data.posts);
         } catch (error) {

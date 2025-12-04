@@ -8,6 +8,7 @@ import {
 } from 'react-icons/hi';
 import { Button, Table } from 'flowbite-react';
 import { Link } from 'react-router-dom';
+import { getApiUrl } from '../utils/api';
 
 export default function DashboardComp() {
   const [users, setUsers] = useState([]);
@@ -23,7 +24,9 @@ export default function DashboardComp() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('/api/user/getusers?limit=5');
+        const res = await fetch(getApiUrl('/api/user/getusers?limit=5'), {
+          credentials: 'include'
+        });
         const data = await res.json();
         if (res.ok) {
           setUsers(data.users);
@@ -36,7 +39,9 @@ export default function DashboardComp() {
     };
     const fetchPosts = async () => {
       try {
-        const res = await fetch('/api/post/getposts?limit=5');
+        const res = await fetch(getApiUrl('/api/post/getposts?limit=5'), {
+          credentials: 'include'
+        });
         const data = await res.json();
         if (res.ok) {
           setPosts(data.posts);
@@ -49,7 +54,9 @@ export default function DashboardComp() {
     };
     const fetchComments = async () => {
       try {
-        const res = await fetch('/api/comment/getcomments?limit=5');
+        const res = await fetch(getApiUrl('/api/comment/getcomments?limit=5'), {
+          credentials: 'include'
+        });
         const data = await res.json();
         if (res.ok) {
           setComments(data.comments);

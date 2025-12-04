@@ -25,9 +25,27 @@ export default function FileCard({ file, onDelete }) {
 
     try {
       setDeleting(true);
-      const response = await axios.delete(`/api/file/delete/${file.uuid}`, {
-        withCredentials: true
-      });
+      
+      // Get token from cookies
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('access_token='))
+        ?.split('=')[1];
+      
+      console.log('Token found:', token ? 'Yes' : 'No');
+      console.log('Current user:', currentUser);
+      
+      const config = {
+        withCredentials: true,
+        headers: {}
+      };
+      
+      // Add token to Authorization header if available
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      
+      const response = await axios.delete(`/api/file/delete/${file.uuid}`, config);
       
       console.log('Delete response:', response.data);
       
@@ -35,8 +53,9 @@ export default function FileCard({ file, onDelete }) {
         onDelete(file.uuid);
       }
     } catch (error) {
-      console.error('Error deleting file:', error.response?.data || error.message);
-      alert(`Failed to delete file: ${error.response?.data?.error || error.message}`);
+      console.error('Error deleting file:', error);
+      console.error('Error response:', error.response?.data);
+      alert(`Failed to delete file: ${error.response?.data?.error || error.response?.data?.message || error.message}`);
       setDeleting(false);
     }
   };

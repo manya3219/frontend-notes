@@ -11,7 +11,13 @@ export default defineConfig({
         changeOrigin: true,
         credentials: 'include',
       },
-
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
     },
   },
   plugins: [react()],

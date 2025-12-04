@@ -32,10 +32,17 @@ export default function DashSidebar() {
         method: 'POST',
         credentials: 'include',
       });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log('Signout error:', data.message);
-      } else {
+      
+      if (res.ok) {
+        // Try to parse JSON, but don't fail if it's not JSON
+        try {
+          const data = await res.json();
+          console.log('Signout response:', data.message);
+        } catch (jsonError) {
+          // Response might not be JSON, that's okay
+          console.log('Signout successful');
+        }
+        
         // Clear Redux state first
         dispatch(signoutSuccess());
         
@@ -44,8 +51,8 @@ export default function DashSidebar() {
         
         // Navigate to landing page
         navigate("/");
-        
-        console.log('User signed out successfully');
+      } else {
+        console.log('Signout failed with status:', res.status);
       }
     } catch (error) {
       console.log('Signout error:', error.message);

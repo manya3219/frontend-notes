@@ -60,35 +60,21 @@ const FileList = () => {
     try {
       setDeletingFolder(folderName);
       
-      // Get token from cookies
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('access_token='))
-        ?.split('=')[1];
-      
-      console.log('Token found:', token ? 'Yes' : 'No');
-      console.log('Current user:', currentUser);
-      
-      const config = {
-        withCredentials: true,
-        headers: {}
-      };
-      
-      // Add token to Authorization header if available
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+      console.log('Deleting folder:', folderName);
+      console.log('Current user:', currentUser?.username);
       
       const encodedFolderName = encodeURIComponent(folderName);
-      const response = await axios.delete(`/api/file/delete-folder/${encodedFolderName}`, config);
       
-      console.log('Delete folder response:', response.data);
+      // Axios interceptor will automatically add token from cookies
+      const response = await axios.delete(`/api/file/delete-folder/${encodedFolderName}`);
+      
+      console.log('Folder deleted successfully:', response.data);
       
       // Remove all files from this folder
       setFiles(files.filter(file => file.folder !== folderName));
       setDeletingFolder(null);
     } catch (error) {
-      console.error('Error deleting folder:', error);
+      console.error('Delete folder error:', error);
       console.error('Error response:', error.response?.data);
       alert(`Failed to delete folder: ${error.response?.data?.error || error.response?.data?.message || error.message}`);
       setDeletingFolder(null);

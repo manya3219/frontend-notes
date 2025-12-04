@@ -14,6 +14,27 @@ export const getApiUrl = (endpoint) => {
 axios.defaults.baseURL = API_URL;
 axios.defaults.withCredentials = true;
 
+// Add axios interceptor to include token in all requests
+axios.interceptors.request.use(
+  (config) => {
+    // Get token from cookies
+    const token = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('access_token='))
+      ?.split('=')[1];
+    
+    // Add token to Authorization header if available
+    if (token && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Fetch wrapper with better error handling
 export const apiFetch = async (endpoint, options = {}) => {
   const url = getApiUrl(endpoint);

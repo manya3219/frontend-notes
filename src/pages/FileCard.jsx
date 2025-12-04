@@ -19,6 +19,17 @@ export default function FileCard({ file, onDelete }) {
   const handleDelete = async (e) => {
     e.stopPropagation();
     
+    // Check if user is logged in and is admin
+    if (!currentUser) {
+      alert('Please login first');
+      return;
+    }
+    
+    if (!currentUser.isAdmin) {
+      alert('Only admin can delete files');
+      return;
+    }
+    
     if (!window.confirm(`Are you sure you want to delete "${file.title}"?`)) {
       return;
     }
@@ -26,34 +37,19 @@ export default function FileCard({ file, onDelete }) {
     try {
       setDeleting(true);
       
-      // Get token from cookies
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('access_token='))
-        ?.split('=')[1];
+      console.log('Deleting file:', file.uuid);
+      console.log('Current user:', currentUser.username);
       
-      console.log('Token found:', token ? 'Yes' : 'No');
-      console.log('Current user:', currentUser);
+      // Axios interceptor will automatically add token from cookies
+      const response = await axios.delete(`/api/file/delete/${file.uuid}`);
       
-      const config = {
-        withCredentials: true,
-        headers: {}
-      };
-      
-      // Add token to Authorization header if available
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      
-      const response = await axios.delete(`/api/file/delete/${file.uuid}`, config);
-      
-      console.log('Delete response:', response.data);
+      console.log('Delete successful:', response.data);
       
       if (onDelete) {
         onDelete(file.uuid);
       }
     } catch (error) {
-      console.error('Error deleting file:', error);
+      console.error('Delete error:', error);
       console.error('Error response:', error.response?.data);
       alert(`Failed to delete file: ${error.response?.data?.error || error.response?.data?.message || error.message}`);
       setDeleting(false);

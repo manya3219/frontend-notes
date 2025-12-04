@@ -1,6 +1,6 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 import CallToAction from '../components/CallToAction';
 import PostCard from '../components/PostCard';
 import { getApiUrl } from '../utils/api';
@@ -8,16 +8,11 @@ import { getApiUrl } from '../utils/api';
 export default function Blog() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true); // Add loading state
-  const navigate = useNavigate();
   
-  // Get current user from Redux
-  const currentUser = useSelector((state) => state.user.currentUser);
+  const currentUser = useAuthRedirect();
 
   useEffect(() => {
-    // If the user is not logged in, redirect immediately
-    if (!currentUser) {
-      navigate('/');
-    } else {
+    if (currentUser) {
       // Fetch posts if user is authenticated
       const fetchPosts = async () => {
         try {
@@ -34,7 +29,7 @@ export default function Blog() {
       };
       fetchPosts();
     }
-  }, [currentUser, navigate]);
+  }, [currentUser]);
 
   // If still loading, show a loading spinner in the center of the screen
   if (loading) {

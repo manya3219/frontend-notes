@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'flowbite-react';
 import axios from 'axios';
-import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
 const VideoList = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -12,14 +12,8 @@ const VideoList = () => {
   const [deletingFolder, setDeletingFolder] = useState(null);
 
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state) => state.user);
+  const currentUser = useAuthRedirect();
   const location = useLocation();
-  
-  useEffect(() => {
-    if (!currentUser) {
-      navigate('/');
-    }
-  }, []);
   
   useEffect(() => {
     fetchPlaylists();

@@ -1,23 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 //import img1 from './img1.png';
 
 function Home() {
-  const navigate = useNavigate();
-  const currentUser = useSelector((state) => state.user.currentUser);
+  const currentUser = useAuthRedirect();
   const [loading, setLoading] = useState(true); // Loading state
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate('/');
-    } else {
+    if (currentUser) {
       // Simulate a short delay for checking authentication or fetching data
       setTimeout(() => {
         setLoading(false); // Stop loading after checking auth
       }, 1000); // Adjust the delay as needed
     }
-  }, [currentUser, navigate]);
+  }, [currentUser]);
 
   // If still loading, show a loading spinner in the center of the screen
   if (loading) {

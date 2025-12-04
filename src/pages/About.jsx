@@ -1,22 +1,18 @@
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 import { useEffect, useState } from "react";
 
 export default function About() {
-  const navigate = useNavigate();
-  const currentUser = useSelector((state) => state.user.currentUser);
+  const currentUser = useAuthRedirect();
   const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate('/');
-    } else {
+    if (currentUser) {
       // Simulate data fetching/loading process
       setTimeout(() => {
         setLoading(false); // Stop loading after content is ready
       }, 1000); // Adjust the delay if needed
     }
-  }, [currentUser, navigate]);
+  }, [currentUser]);
 
   // Show loading spinner if the page is still loading
   if (loading) {

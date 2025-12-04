@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 import PostCard from '../components/PostCard';
 import { Button, Select, TextInput } from 'flowbite-react';
 import { getApiUrl } from '../utils/api';
@@ -14,13 +14,7 @@ export default function AllBlogs() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state) => state.user);
-
-  useEffect(() => {
-    if (!currentUser) {
-      navigate('/');
-    }
-  }, [currentUser, navigate]);
+  const currentUser = useAuthRedirect();
 
   useEffect(() => {
     fetchPosts();

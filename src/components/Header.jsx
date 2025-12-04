@@ -122,45 +122,64 @@ export default function Header() {
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
-        {/* Mobile Search Bar - Shows in collapsed menu */}
-        <div className='md:hidden py-2'>
-          <form onSubmit={handleSubmit} className='w-full'>
-            <TextInput
-              type='text'
-              placeholder='Search...'
-              rightIcon={AiOutlineSearch}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              sizing='md'
-            />
-          </form>
-        </div>
-        
-        <Navbar.Link active={path === '/home'} as={'div'}>
-          <Link to='/home' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
-            Home
-          </Link>
-        </Navbar.Link>
-        <Navbar.Link active={path === '/about'} as={'div'}>
-          <Link to='/about' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
-            About
-          </Link>
-        </Navbar.Link>
-        <Navbar.Link active={path === '/filelist'} as={'div'}>
-          <Link to='/filelist' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
-            FileList
-          </Link>
-        </Navbar.Link>
-        <Navbar.Link active={path === '/blog'} as={'div'}>
-          <Link to='/blog' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
-            Blogs
-          </Link>
-        </Navbar.Link>
-        <Navbar.Link active={path === '/VideoUpload'} as={'div'}>
-          <Link to='/VideoUpload' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
-            Playlist
-          </Link>
-        </Navbar.Link>
+        {/* Only show navigation if user is logged in */}
+        {currentUser ? (
+          <>
+            {/* Mobile Search Bar - Shows in collapsed menu */}
+            <div className='md:hidden py-2'>
+              <form onSubmit={handleSubmit} className='w-full'>
+                <TextInput
+                  type='text'
+                  placeholder='Search...'
+                  rightIcon={AiOutlineSearch}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  sizing='md'
+                />
+              </form>
+            </div>
+            
+            <Navbar.Link active={path === '/home'} as={'div'}>
+              <Link to='/home' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
+                Home
+              </Link>
+            </Navbar.Link>
+            <Navbar.Link active={path === '/about'} as={'div'}>
+              <Link to='/about' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
+                About
+              </Link>
+            </Navbar.Link>
+            <Navbar.Link active={path === '/filelist'} as={'div'}>
+              <Link to='/filelist' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
+                Files
+              </Link>
+            </Navbar.Link>
+            <Navbar.Link active={path === '/blog'} as={'div'}>
+              <Link to='/blog' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
+                Blogs
+              </Link>
+            </Navbar.Link>
+            <Navbar.Link active={path === '/video-list'} as={'div'}>
+              <Link to='/video-list' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
+                Videos
+              </Link>
+            </Navbar.Link>
+          </>
+        ) : (
+          /* Show login/signup links when not logged in */
+          <>
+            <Navbar.Link as={'div'}>
+              <Link to='/login' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
+                Login
+              </Link>
+            </Navbar.Link>
+            <Navbar.Link as={'div'}>
+              <Link to='/signup' className='text-base sm:text-lg font-bold text-gray-600 hover:text-black dark:hover:text-white'>
+                Sign Up
+              </Link>
+            </Navbar.Link>
+          </>
+        )}
       </Navbar.Collapse>
     </Navbar>
   );

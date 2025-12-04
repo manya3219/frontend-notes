@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Blog from './pages/Blog'
 import SignUp from './pages/SignUp'
+import Landing from './pages/Landing'
 import Header from './components/Header'
 import {BrowserRouter,Routes,Route}from'react-router-dom'
 import Dashboard from './pages/Dashboard';
@@ -30,37 +31,35 @@ export default function App() {
   <Header/>
   
    <Routes>
-      <Route path="/" element={<SignUp/>}/>
-      <Route path="/Login" element={<Login/>}/>
+      {/* Public Routes - No Login Required */}
+      <Route path="/" element={<Landing/>}/>
+      <Route path="/signup" element={<SignUp/>}/>
+      <Route path="/login" element={<Login/>}/>
       <Route path="/teacher-login" element={<TeacherLogin/>}/>
       <Route path="/teacher-signup" element={<TeacherSignUp/>}/>
-      <Route path="/home" element={<Home />}/>
-      <Route path="/about" element={<About/>}/>
-      <Route path="/blog" element={<Blog/>}/>
-      <Route path="/all-blogs" element={<AllBlogs/>}/>
-      <Route path="/VideoUpload" element={<VideoUpload/>}/>
-      <Route path="/video-list" element={<VideoList/>}/>
-      <Route path="/video-upload-new" element={<VideoUploadNew/>}/>
-      <Route path="/search" element={<Search/>}/>
       
-      
-    
-      <Route path="/upload" element={<Upload/>}/>
-      
-      <Route path="/filelist" element={<FileList />}/>
-      <Route path="/view-file/:uuid" element={<PdfViewer />}/>
-      
-     
+      {/* Protected Routes - Login Required */}
       <Route element={<PrivateRoute/>}>
-      <Route path='/dashboard' element={<Dashboard />} />
+        <Route path="/home" element={<Home />}/>
+        <Route path="/about" element={<About/>}/>
+        <Route path="/blog" element={<Blog/>}/>
+        <Route path="/all-blogs" element={<AllBlogs/>}/>
+        <Route path="/filelist" element={<FileList />}/>
+        <Route path="/view-file/:uuid" element={<PdfViewer />}/>
+        <Route path="/video-list" element={<VideoList/>}/>
+        <Route path="/search" element={<Search/>}/>
+        <Route path="/post/:postSlug" element={<PostPage/>}/>
+        <Route path='/dashboard' element={<Dashboard />} />
       </Route>
-      <Route element={<OnlyAdminPrivateRoute/>}>
-      <Route path="/upload" element={<Upload/>}/>
-      <Route path="/create-post" element={<CreatePost/>}/>
-      <Route path='/update-post/:postId' element={<UpdatePost />} />
       
+      {/* Admin Only Routes */}
+      <Route element={<OnlyAdminPrivateRoute/>}>
+        <Route path="/upload" element={<Upload/>}/>
+        <Route path="/VideoUpload" element={<VideoUpload/>}/>
+        <Route path="/video-upload-new" element={<VideoUploadNew/>}/>
+        <Route path="/create-post" element={<CreatePost/>}/>
+        <Route path='/update-post/:postId' element={<UpdatePost />} />
       </Route>
-      <Route path="/post/:postSlug" element={<PostPage/>}/>
    </Routes>
    <Foot/>
   

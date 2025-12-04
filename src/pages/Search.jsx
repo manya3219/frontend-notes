@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import PostCard from '../components/PostCard';
 import FileCard from './FileCard';
 import axios from 'axios';
+import { getApiUrl } from '../utils/api';
 
 export default function Search() {
   const [sidebarData, setSidebarData] = useState({
@@ -41,7 +42,9 @@ export default function Search() {
       const searchTerm = searchTermFromUrl || '';
       
       // Fetch posts
-      const postsRes = await fetch(`/api/post/getposts?${searchQuery}`);
+      const postsRes = await fetch(getApiUrl(`/api/post/getposts?${searchQuery}`), {
+        credentials: 'include'
+      });
       if (postsRes.ok) {
         const postsData = await postsRes.json();
         setPosts(postsData.posts || []);
@@ -49,7 +52,7 @@ export default function Search() {
       
       // Fetch files
       try {
-        const filesRes = await axios.get('http://localhost:5000/api/file');
+        const filesRes = await axios.get('/api/file');
         const allFiles = filesRes.data;
         // Filter files by search term
         const filteredFiles = searchTerm 
@@ -119,7 +122,9 @@ export default function Search() {
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('startIndex', startIndex);
     const searchQuery = urlParams.toString();
-    const res = await fetch(`/api/post/getposts?${searchQuery}`);
+    const res = await fetch(getApiUrl(`/api/post/getposts?${searchQuery}`), {
+      credentials: 'include'
+    });
     if (!res.ok) {
       return;
     }
@@ -135,8 +140,8 @@ export default function Search() {
   };
 
   return (
-    <div className='flex flex-col md:flex-row'>
-      <div className='p-4 sm:p-7 border-b md:border-r md:min-h-screen border-gray-500'>
+    <div className='flex flex-col md:flex-row min-h-screen'>
+      <div className='w-full md:w-72 p-4 sm:p-7 border-b md:border-r border-gray-500 md:sticky md:top-0 md:h-screen md:overflow-y-auto'>
         <form className='flex flex-col gap-4 sm:gap-8' onSubmit={handleSubmit}>
           <div className='flex flex-col sm:flex-row items-start sm:items-center gap-2'>
             <label className='whitespace-nowrap font-semibold text-sm sm:text-base'>

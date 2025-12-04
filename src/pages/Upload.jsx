@@ -18,7 +18,7 @@ const Upload = () => {
 
   const fetchFolders = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/file');
+      const response = await axios.get('/api/file');
       const files = response.data;
       const uniqueFolders = [...new Set(files.filter(f => f.folder).map(f => f.folder))];
       setFolders(uniqueFolders);
@@ -52,7 +52,7 @@ const Upload = () => {
         formData.append('folder', newFolder);
       }
       
-      await axios.post('http://localhost:5000/api/files', formData);
+      await axios.post('/api/files', formData);
       setMessage('File uploaded successfully!');
       
       // Reset form

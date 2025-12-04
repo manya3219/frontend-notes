@@ -27,7 +27,7 @@ const FileList = () => {
   const fetchFiles = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/file`);
+      const response = await axios.get('/api/file');
       setFiles(response.data);
       setLoading(false);
     } catch (error) {

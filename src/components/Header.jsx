@@ -29,16 +29,25 @@ export default function Header() {
     try {
       const res = await fetch('/api/user/signout', {
         method: 'POST',
+        credentials: 'include',
       });
       const data = await res.json();
       if (!res.ok) {
-        console.log(data.message);
+        console.log('Signout error:', data.message);
       } else {
-        navigate("/");
+        // Clear Redux state first
         dispatch(signoutSuccess());
+        
+        // Clear any local storage if needed
+        localStorage.removeItem('persist:root');
+        
+        // Navigate to landing page
+        navigate("/");
+        
+        console.log('User signed out successfully');
       }
     } catch (error) {
-      console.log(error.message);
+      console.log('Signout error:', error.message);
     }
   };
 

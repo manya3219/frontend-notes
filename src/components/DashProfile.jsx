@@ -21,7 +21,7 @@ import {
 } from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function DashProfile() {
   const { currentUser, error, loading } = useSelector((state) => state.user);
@@ -36,6 +36,7 @@ export default function DashProfile() {
   const [formData, setFormData] = useState({});
   const filePickerRef = useRef();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -153,15 +154,25 @@ export default function DashProfile() {
     try {
       const res = await fetch('/api/user/signout', {
         method: 'POST',
+        credentials: 'include',
       });
       const data = await res.json();
       if (!res.ok) {
-        console.log(data.message);
+        console.log('Signout error:', data.message);
       } else {
+        // Clear Redux state first
         dispatch(signoutSuccess());
+        
+        // Clear any local storage if needed
+        localStorage.removeItem('persist:root');
+        
+        // Navigate to landing page
+        navigate("/");
+        
+        console.log('User signed out successfully');
       }
     } catch (error) {
-      console.log(error.message);
+      console.log('Signout error:', error.message);
     }
   };
   return (

@@ -8,7 +8,7 @@ import {
   HiChartPie,
 } from 'react-icons/hi';
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signoutSuccess } from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
@@ -16,6 +16,7 @@ import { useSelector } from 'react-redux';
 export default function DashSidebar() {
   const location = useLocation();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
   const [tab, setTab] = useState('');
   useEffect(() => {
@@ -29,15 +30,25 @@ export default function DashSidebar() {
     try {
       const res = await fetch('/api/user/signout', {
         method: 'POST',
+        credentials: 'include',
       });
       const data = await res.json();
       if (!res.ok) {
-        console.log(data.message);
+        console.log('Signout error:', data.message);
       } else {
+        // Clear Redux state first
         dispatch(signoutSuccess());
+        
+        // Clear any local storage if needed
+        localStorage.removeItem('persist:root');
+        
+        // Navigate to landing page
+        navigate("/");
+        
+        console.log('User signed out successfully');
       }
     } catch (error) {
-      console.log(error.message);
+      console.log('Signout error:', error.message);
     }
   };
   return (

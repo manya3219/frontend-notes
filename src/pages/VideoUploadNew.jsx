@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FileInput, Label, TextInput, Button, Select, Alert, Textarea } from "flowbite-react";
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
 const VideoUploadNew = () => {
   const [playlistName, setPlaylistName] = useState('');
@@ -14,15 +13,14 @@ const VideoUploadNew = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { currentUser } = useSelector((state) => state.user);
-  const navigate = useNavigate();
+  // Require admin access (prevents redirect on refresh)
+  const currentUser = useAuthRedirect(true);
 
   useEffect(() => {
-    if (!currentUser?.isAdmin) {
-      navigate('/');
+    if (currentUser?.isAdmin) {
+      fetchFolders();
     }
-    fetchFolders();
-  }, []);
+  }, [currentUser]);
 
   const fetchFolders = async () => {
     try {

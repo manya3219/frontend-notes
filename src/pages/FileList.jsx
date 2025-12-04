@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'flowbite-react';
 import axios from 'axios';
 import FileCard from './FileCard';
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
 const FileList = () => {
   const [files, setFiles] = useState([]);
@@ -11,18 +10,14 @@ const FileList = () => {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [deletingFolder, setDeletingFolder] = useState(null);
 
-  const navigate = useNavigate();
-  const currentUser = useSelector((state) => state.user.currentUser);
+  // Use custom hook for auth redirect (prevents redirect on refresh)
+  const currentUser = useAuthRedirect();
   
   useEffect(() => {
-    if (!currentUser) {
-      navigate('/');
+    if (currentUser) {
+      fetchFiles();
     }
-  }, []);
-  
-  useEffect(() => {
-    fetchFiles();
-  }, []);
+  }, [currentUser]);
 
   const fetchFiles = async () => {
     try {

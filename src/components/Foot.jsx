@@ -29,7 +29,7 @@ export default function Foot() {
                    JS Projects
                 </Footer.Link>
                 <Footer.Link
-                  href='/about'
+                  href='https://frontend-notes-2-ija5.onrender.com'
                   target='_blank'
                   rel='noopener noreferrer'
                 >

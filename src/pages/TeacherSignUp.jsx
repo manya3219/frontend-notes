@@ -57,7 +57,7 @@ export default function TeacherSignUp() {
             <ul className='list-disc list-inside space-y-1'>
               <li>Email must end with @gmail.com</li>
               <li>Password: 8+ chars, uppercase, lowercase, number, special char (@$!%?&)</li>
-              <li>Admin Key: 123456@A</li>
+              <li>Admin Key: Contact administrator for the key</li>
             </ul>
           </div>
         </div>
@@ -71,6 +71,7 @@ export default function TeacherSignUp() {
                 placeholder='Username'
                 id='username'
                 onChange={handleChange}
+                required
               />
             </div>
             <div>
@@ -80,25 +81,31 @@ export default function TeacherSignUp() {
                 placeholder='teacher@gmail.com'
                 id='email'
                 onChange={handleChange}
+                required
               />
             </div>
             <div>
               <Label value='Your password' />
               <TextInput
                 type='password'
-                placeholder='Example: Teacher@123'
+                placeholder='Enter strong password'
                 id='password'
                 onChange={handleChange}
+                required
               />
             </div>
             <div>
-              <Label value='Admin Key (123456@A)' />
+              <Label value='Enter Admin Key' />
               <TextInput
-                type='text'
-                placeholder='123456@A'
+                type='password'
+                placeholder='Enter admin key'
                 id='adminKey'
                 onChange={handleChange}
+                required
               />
+              <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                Contact your administrator to get the admin key
+              </p>
             </div>
             <Button
               gradientDuoTone='purpleToPink'

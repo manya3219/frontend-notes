@@ -25,7 +25,9 @@ export default function FileCard({ file, onDelete }) {
 
     try {
       setDeleting(true);
-      const response = await axios.delete(`/api/file/delete/${file.uuid}`);
+      const response = await axios.delete(`/api/file/delete/${file.uuid}`, {
+        withCredentials: true
+      });
       
       console.log('Delete response:', response.data);
       

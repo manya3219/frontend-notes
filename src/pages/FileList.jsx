@@ -59,7 +59,10 @@ const FileList = () => {
 
     try {
       setDeletingFolder(folderName);
-      const response = await axios.delete(`/api/file/delete-folder/${folderName}`);
+      const encodedFolderName = encodeURIComponent(folderName);
+      const response = await axios.delete(`/api/file/delete-folder/${encodedFolderName}`, {
+        withCredentials: true
+      });
       
       console.log('Delete folder response:', response.data);
       

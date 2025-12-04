@@ -38,7 +38,8 @@ export default function PdfViewer() {
   };
 
   const handleDownload = () => {
-    window.open(`${API_URL}/file/download/${uuid}`, '_blank');
+    const downloadUrl = API_URL ? `${API_URL}/file/download/${uuid}` : `/file/download/${uuid}`;
+    window.open(downloadUrl, '_blank');
   };
 
   const handleDelete = async () => {
@@ -133,11 +134,21 @@ export default function PdfViewer() {
       <div className="max-w-7xl mx-auto p-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           <iframe
-            src={`${API_URL}/api/file/view/${uuid}`}
+            src={API_URL ? `${API_URL}/api/file/view/${uuid}` : `/api/file/view/${uuid}`}
             className="w-full h-[calc(100vh-150px)]"
             title={file?.title}
             style={{ border: 'none' }}
+            onError={(e) => console.error('Iframe error:', e)}
           />
+        </div>
+        
+        {/* Debug Info - Remove after testing */}
+        <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-700 rounded text-xs">
+          <p><strong>Debug Info:</strong></p>
+          <p>API_URL: {API_URL || '(empty - using relative URL)'}</p>
+          <p>File UUID: {uuid}</p>
+          <p>Full URL: {API_URL ? `${API_URL}/api/file/view/${uuid}` : `/api/file/view/${uuid}`}</p>
+          <p>File Title: {file?.title}</p>
         </div>
       </div>
     </div>

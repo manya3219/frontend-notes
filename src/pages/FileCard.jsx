@@ -37,21 +37,40 @@ export default function FileCard({ file, onDelete }) {
     try {
       setDeleting(true);
       
-      console.log('Deleting file:', file.uuid);
-      console.log('Current user:', currentUser.username);
+      console.log('=== DELETE FILE DEBUG ===');
+      console.log('File UUID:', file.uuid);
+      console.log('File title:', file.title);
+      console.log('Current user:', currentUser);
+      console.log('Is Admin:', currentUser.isAdmin);
+      console.log('All cookies:', document.cookie);
+      console.log('Delete URL:', `/api/file/delete/${file.uuid}`);
       
       // Axios interceptor will automatically add token from cookies
       const response = await axios.delete(`/api/file/delete/${file.uuid}`);
       
-      console.log('Delete successful:', response.data);
+      console.log('File deleted successfully:', response.data);
       
       if (onDelete) {
         onDelete(file.uuid);
       }
+      
+      alert('File deleted successfully!');
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error('=== DELETE FILE ERROR ===');
+      console.error('Error:', error);
       console.error('Error response:', error.response?.data);
-      alert(`Failed to delete file: ${error.response?.data?.error || error.response?.data?.message || error.message}`);
+      console.error('Error status:', error.response?.status);
+      
+      let errorMsg = 'Failed to delete file';
+      if (error.response?.status === 401) {
+        errorMsg = 'Unauthorized - Please login again';
+      } else if (error.response?.data?.error) {
+        errorMsg = error.response.data.error;
+      } else if (error.response?.data?.message) {
+        errorMsg = error.response.data.message;
+      }
+      
+      alert(errorMsg);
       setDeleting(false);
     }
   };

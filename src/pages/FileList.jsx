@@ -53,6 +53,12 @@ const FileList = () => {
   const handleFolderDelete = async (folderName, e) => {
     e.stopPropagation();
     
+    // Check if user is admin
+    if (!currentUser?.isAdmin) {
+      alert('Only admin can delete folders');
+      return;
+    }
+    
     if (!window.confirm(`Are you sure you want to delete the entire folder "${folderName}" and all its files?`)) {
       return;
     }
@@ -60,23 +66,45 @@ const FileList = () => {
     try {
       setDeletingFolder(folderName);
       
-      console.log('Deleting folder:', folderName);
-      console.log('Current user:', currentUser?.username);
+      console.log('=== DELETE FOLDER DEBUG ===');
+      console.log('Folder name:', folderName);
+      console.log('Current user:', currentUser);
+      console.log('Is Admin:', currentUser?.isAdmin);
+      console.log('All cookies:', document.cookie);
       
       const encodedFolderName = encodeURIComponent(folderName);
+      console.log('Encoded folder name:', encodedFolderName);
+      console.log('Delete URL:', `/api/file/delete-folder/${encodedFolderName}`);
       
       // Axios interceptor will automatically add token from cookies
       const response = await axios.delete(`/api/file/delete-folder/${encodedFolderName}`);
       
       console.log('Folder deleted successfully:', response.data);
       
-      // Remove all files from this folder
-      setFiles(files.filter(file => file.folder !== folderName));
+      // Remove all files from this folder and subfolders
+      setFiles(files.filter(file => 
+        file.folder !== folderName && 
+        !file.folder?.startsWith(folderName + '/')
+      ));
       setDeletingFolder(null);
+      
+      alert('Folder deleted successfully!');
     } catch (error) {
-      console.error('Delete folder error:', error);
+      console.error('=== DELETE FOLDER ERROR ===');
+      console.error('Error:', error);
       console.error('Error response:', error.response?.data);
-      alert(`Failed to delete folder: ${error.response?.data?.error || error.response?.data?.message || error.message}`);
+      console.error('Error status:', error.response?.status);
+      
+      let errorMsg = 'Failed to delete folder';
+      if (error.response?.status === 401) {
+        errorMsg = 'Unauthorized - Please login again';
+      } else if (error.response?.data?.error) {
+        errorMsg = error.response.data.error;
+      } else if (error.response?.data?.message) {
+        errorMsg = error.response.data.message;
+      }
+      
+      alert(errorMsg);
       setDeletingFolder(null);
     }
   };

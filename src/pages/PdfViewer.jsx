@@ -14,9 +14,13 @@ export default function PdfViewer() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Get viewable URL - Use backend proxy for reliable viewing
+  // Get viewable URL - Direct Cloudinary URL for best compatibility
   const getViewableUrl = () => {
-    // Use backend /view route which handles both Cloudinary and local files
+    if (file?.image && file.image.includes('cloudinary')) {
+      // For Cloudinary files, use direct URL
+      return file.image;
+    }
+    // For local files, use backend proxy
     const baseUrl = API_URL || '';
     return `${baseUrl}/api/file/view/${uuid}`;
   };

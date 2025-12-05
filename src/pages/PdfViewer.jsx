@@ -14,17 +14,11 @@ export default function PdfViewer() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Get viewable URL - Use Google Docs Viewer for PDFs
-  const getViewableUrl = (url) => {
-    if (!url || !url.includes('cloudinary')) return url;
-    
-    // For PDFs, use Google Docs Viewer (works with any public URL)
-    const isPdf = url.toLowerCase().includes('.pdf');
-    if (isPdf) {
-      return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
-    }
-    
-    return url; // For images and other files, use original URL
+  // Get viewable URL - Use backend proxy for reliable viewing
+  const getViewableUrl = () => {
+    // Use backend /view route which handles both Cloudinary and local files
+    const baseUrl = API_URL || '';
+    return `${baseUrl}/api/file/view/${uuid}`;
   };
 
   // Get file extension
@@ -167,7 +161,7 @@ export default function PdfViewer() {
           {file?.image && file.image.includes('cloudinary') ? (
             // Cloudinary files - Direct viewing with iframe
             (() => {
-              const viewableUrl = getViewableUrl(file.image);
+              const viewableUrl = getViewableUrl();
               const originalUrl = file.image;
               const isPdf = getFileExtension(file.title) === 'pdf';
               const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(getFileExtension(file.title));
@@ -179,7 +173,7 @@ export default function PdfViewer() {
                   {canShowPreview ? (
                     <div className="w-full" style={{ height: 'calc(100vh - 200px)' }}>
                       {isPdf ? (
-                        // PDF Viewer using Google Docs Viewer
+                        // PDF Viewer using backend proxy
                         <iframe
                           src={viewableUrl}
                           className="w-full h-full border-0"

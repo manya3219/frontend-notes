@@ -15,7 +15,7 @@ export default function PdfViewer() {
   const [error, setError] = useState(null);
 
   // Fix Cloudinary URL for PDFs - Make it viewable
-  const fixCloudinaryUrl = (url) => {
+  const fixCloudinaryUrl = (url, forceInline = false) => {
     if (!url || !url.includes('cloudinary')) return url;
     
     let fixedUrl = url;

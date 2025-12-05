@@ -14,7 +14,7 @@ export default function PdfViewer() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fix Cloudinary URL for PDFs
+  // Fix Cloudinary URL for PDFs - Make it viewable
   const fixCloudinaryUrl = (url) => {
     if (!url || !url.includes('cloudinary')) return url;
     
@@ -23,10 +23,21 @@ export default function PdfViewer() {
     // Replace image/upload with raw/upload for non-image files
     fixedUrl = fixedUrl.replace('/image/upload/', '/raw/upload/');
     
-    // Remove file extension from URL (Cloudinary doesn't need it)
+    // Remove file extension from URL (Cloudinary doesn't need it for raw files)
     fixedUrl = fixedUrl.replace(/\.(pdf|doc|docx|txt|xlsx|ppt|pptx)$/i, '');
     
     return fixedUrl;
+  };
+
+  // Get file extension
+  const getFileExtension = (filename) => {
+    return filename?.split('.').pop()?.toLowerCase() || '';
+  };
+
+  // Check if file can be previewed in browser
+  const canPreview = (filename) => {
+    const ext = getFileExtension(filename);
+    return ['pdf', 'txt', 'jpg', 'jpeg', 'png', 'gif'].includes(ext);
   };
 
   useEffect(() => {
@@ -156,68 +167,96 @@ export default function PdfViewer() {
         
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           {file?.image && file.image.includes('cloudinary') ? (
-            // Cloudinary files - Direct viewing with fallback options
+            // Cloudinary files - Direct viewing with iframe
             (() => {
               const fixedUrl = fixCloudinaryUrl(file.image);
+              const isPdf = getFileExtension(file.title) === 'pdf';
+              const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(getFileExtension(file.title));
+              const canShowPreview = canPreview(file.title);
+              
               return (
                 <div className="flex flex-col h-full">
-                  {/* Main viewer area */}
-                  <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-8">
-                    <div className="text-center max-w-2xl">
-                      <div className="text-6xl mb-6">📄</div>
-                      <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-                        {file?.title}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        Your file is ready! Choose how you'd like to view it:
-                      </p>
-                      
-                      <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                        <a
-                          href={fixedUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
-                        >
-                          <span>🔗</span>
-                          <span>Open in New Tab</span>
-                        </a>
-                        <a
-                          href={fixedUrl}
-                          download={file.title}
-                          className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
-                        >
-                          <span>⬇️</span>
-                          <span>Download File</span>
-                        </a>
-                      </div>
-                      
-                      {/* Direct URL for copying */}
-                      <div className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Direct Link:</p>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={fixedUrl}
-                            readOnly
-                            className="flex-1 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300"
-                            onClick={(e) => e.target.select()}
-                          />
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(fixedUrl);
-                              alert('Link copied to clipboard!');
+                  {/* Preview Area */}
+                  {canShowPreview ? (
+                    <div className="w-full" style={{ height: 'calc(100vh - 200px)' }}>
+                      {isPdf ? (
+                        // PDF Viewer using iframe
+                        <iframe
+                          src={fixedUrl}
+                          className="w-full h-full border-0"
+                          title={file.title}
+                          onError={(e) => {
+                            console.error('PDF load error:', e);
+                            setError('Unable to load PDF. Please use download button.');
+                          }}
+                        />
+                      ) : isImage ? (
+                        // Image viewer
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
+                          <img
+                            src={file.image}
+                            alt={file.title}
+                            className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                            onError={(e) => {
+                              console.error('Image load error:', e);
+                              setError('Unable to load image. Please use download button.');
                             }}
-                            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm transition"
-                          >
-                            📋 Copy
-                          </button>
+                          />
                         </div>
+                      ) : (
+                        // Text file viewer
+                        <iframe
+                          src={fixedUrl}
+                          className="w-full h-full border-0 bg-white dark:bg-gray-900"
+                          title={file.title}
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    // Non-previewable files
+                    <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-8" style={{ height: 'calc(100vh - 200px)' }}>
+                      <div className="text-center max-w-2xl">
+                        <div className="text-6xl mb-6">📄</div>
+                        <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                          {file?.title}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">
+                          This file type cannot be previewed in browser. Please download to view.
+                        </p>
                       </div>
-                      
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                        💡 Files are stored securely on Cloudinary CDN
-                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Action Buttons */}
+                  <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <a
+                        href={fixedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
+                      >
+                        <span>🔗</span>
+                        <span>Open in New Tab</span>
+                      </a>
+                      <a
+                        href={fixedUrl}
+                        download={file.title}
+                        className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
+                      >
+                        <span>⬇️</span>
+                        <span>Download File</span>
+                      </a>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(fixedUrl);
+                          alert('Link copied to clipboard!');
+                        }}
+                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
+                      >
+                        <span>📋</span>
+                        <span>Copy Link</span>
+                      </button>
                     </div>
                   </div>
                 </div>

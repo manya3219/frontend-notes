@@ -14,15 +14,17 @@ export default function PdfViewer() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fix Cloudinary URL for PDFs - Keep original URL for old files
-  const fixCloudinaryUrl = (url) => {
+  // Get viewable URL - Use Google Docs Viewer for PDFs
+  const getViewableUrl = (url) => {
     if (!url || !url.includes('cloudinary')) return url;
     
-    // For old files uploaded as 'image' type, keep the URL as-is
-    // They were uploaded with extension and need it to access
-    // New files will be uploaded as 'raw' type by backend
+    // For PDFs, use Google Docs Viewer (works with any public URL)
+    const isPdf = url.toLowerCase().includes('.pdf');
+    if (isPdf) {
+      return `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+    }
     
-    return url; // Return original URL - it works!
+    return url; // For images and other files, use original URL
   };
 
   // Get file extension
@@ -165,7 +167,8 @@ export default function PdfViewer() {
           {file?.image && file.image.includes('cloudinary') ? (
             // Cloudinary files - Direct viewing with iframe
             (() => {
-              const fixedUrl = fixCloudinaryUrl(file.image);
+              const viewableUrl = getViewableUrl(file.image);
+              const originalUrl = file.image;
               const isPdf = getFileExtension(file.title) === 'pdf';
               const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(getFileExtension(file.title));
               const canShowPreview = canPreview(file.title);
@@ -176,9 +179,9 @@ export default function PdfViewer() {
                   {canShowPreview ? (
                     <div className="w-full" style={{ height: 'calc(100vh - 200px)' }}>
                       {isPdf ? (
-                        // PDF Viewer using iframe
+                        // PDF Viewer using Google Docs Viewer
                         <iframe
-                          src={fixedUrl}
+                          src={viewableUrl}
                           className="w-full h-full border-0"
                           title={file.title}
                           onError={(e) => {
@@ -202,7 +205,7 @@ export default function PdfViewer() {
                       ) : (
                         // Text file viewer
                         <iframe
-                          src={fixedUrl}
+                          src={viewableUrl}
                           className="w-full h-full border-0 bg-white dark:bg-gray-900"
                           title={file.title}
                         />
@@ -227,7 +230,7 @@ export default function PdfViewer() {
                   <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                       <a
-                        href={fixedUrl}
+                        href={originalUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
@@ -236,7 +239,7 @@ export default function PdfViewer() {
                         <span>Open in New Tab</span>
                       </a>
                       <a
-                        href={fixedUrl}
+                        href={originalUrl}
                         download={file.title}
                         className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
                       >
@@ -245,7 +248,7 @@ export default function PdfViewer() {
                       </a>
                       <button
                         onClick={() => {
-                          navigator.clipboard.writeText(fixedUrl);
+                          navigator.clipboard.writeText(originalUrl);
                           alert('Link copied to clipboard!');
                         }}
                         className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"

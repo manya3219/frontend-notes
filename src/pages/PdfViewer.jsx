@@ -14,19 +14,15 @@ export default function PdfViewer() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fix Cloudinary URL for PDFs - Make it viewable
-  const fixCloudinaryUrl = (url, forceInline = false) => {
+  // Fix Cloudinary URL for PDFs - Keep original URL for old files
+  const fixCloudinaryUrl = (url) => {
     if (!url || !url.includes('cloudinary')) return url;
     
-    let fixedUrl = url;
+    // For old files uploaded as 'image' type, keep the URL as-is
+    // They were uploaded with extension and need it to access
+    // New files will be uploaded as 'raw' type by backend
     
-    // Replace image/upload with raw/upload for non-image files
-    fixedUrl = fixedUrl.replace('/image/upload/', '/raw/upload/');
-    
-    // Remove file extension from URL (Cloudinary doesn't need it for raw files)
-    fixedUrl = fixedUrl.replace(/\.(pdf|doc|docx|txt|xlsx|ppt|pptx)$/i, '');
-    
-    return fixedUrl;
+    return url; // Return original URL - it works!
   };
 
   // Get file extension

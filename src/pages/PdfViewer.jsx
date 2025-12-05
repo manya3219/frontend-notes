@@ -60,8 +60,14 @@ export default function PdfViewer() {
   };
 
   const handleDownload = () => {
-    const downloadUrl = API_URL ? `${API_URL}/file/download/${uuid}` : `/file/download/${uuid}`;
-    window.open(downloadUrl, '_blank');
+    // For Cloudinary files, download directly from Cloudinary
+    if (file?.image && file.image.includes('cloudinary')) {
+      window.open(file.image, '_blank');
+    } else {
+      // For local files, use backend download route
+      const downloadUrl = API_URL ? `${API_URL}/file/download/${uuid}` : `/file/download/${uuid}`;
+      window.open(downloadUrl, '_blank');
+    }
   };
 
   const handleDelete = async () => {

@@ -14,11 +14,19 @@ export default function PdfViewer() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fix Cloudinary URL for PDFs (change image/upload to raw/upload)
+  // Fix Cloudinary URL for PDFs
   const fixCloudinaryUrl = (url) => {
     if (!url || !url.includes('cloudinary')) return url;
+    
+    let fixedUrl = url;
+    
     // Replace image/upload with raw/upload for non-image files
-    return url.replace('/image/upload/', '/raw/upload/');
+    fixedUrl = fixedUrl.replace('/image/upload/', '/raw/upload/');
+    
+    // Remove file extension from URL (Cloudinary doesn't need it)
+    fixedUrl = fixedUrl.replace(/\.(pdf|doc|docx|txt|xlsx|ppt|pptx)$/i, '');
+    
+    return fixedUrl;
   };
 
   useEffect(() => {

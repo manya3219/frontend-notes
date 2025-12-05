@@ -132,21 +132,47 @@ export default function PdfViewer() {
 
       {/* File Viewer */}
       <div className="max-w-7xl mx-auto p-4">
+        {error && (
+          <div className="mb-4 p-4 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-lg">
+            <p className="font-semibold">⚠️ {error}</p>
+            <p className="text-sm mt-2">Please use the download button above to view the file.</p>
+          </div>
+        )}
+        
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           {file?.image && file.image.includes('cloudinary') ? (
-            // If file is on Cloudinary, use Google Docs Viewer for better compatibility
-            <iframe
-              src={`https://docs.google.com/viewer?url=${encodeURIComponent(file.image)}&embedded=true`}
-              className="w-full h-[calc(100vh-150px)]"
-              title={file?.title}
-              style={{ border: 'none' }}
-              onError={(e) => {
-                console.error('Iframe error:', e);
-                // Fallback to direct URL
-                const iframe = e.target;
-                iframe.src = file.image;
-              }}
-            />
+            // If file is on Cloudinary, try multiple viewing methods
+            <>
+              {/* Try Google Docs Viewer first */}
+              <iframe
+                src={`https://docs.google.com/viewer?url=${encodeURIComponent(file.image)}&embedded=true`}
+                className="w-full h-[calc(100vh-150px)]"
+                title={file?.title}
+                style={{ border: 'none' }}
+                onLoad={() => console.log('File loaded successfully')}
+                onError={(e) => {
+                  console.error('Google Docs Viewer failed, trying direct URL');
+                  // Try direct Cloudinary URL as fallback
+                  const iframe = e.target;
+                  iframe.src = file.image;
+                }}
+              />
+              
+              {/* Alternative: Direct link if iframe fails */}
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  If the file doesn't load above, try:
+                </p>
+                <a
+                  href={file.image}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                >
+                  Open in New Tab →
+                </a>
+              </div>
+            </>
           ) : (
             // Otherwise use backend API route
             <iframe

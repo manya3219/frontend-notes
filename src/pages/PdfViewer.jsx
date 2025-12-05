@@ -141,50 +141,68 @@ export default function PdfViewer() {
         
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           {file?.image && file.image.includes('cloudinary') ? (
-            // If file is on Cloudinary, try multiple viewing methods
+            // Cloudinary files - Use Google Docs Viewer
             <>
-              {/* Try Google Docs Viewer first */}
               <iframe
                 src={`https://docs.google.com/viewer?url=${encodeURIComponent(file.image)}&embedded=true`}
                 className="w-full h-[calc(100vh-150px)]"
                 title={file?.title}
                 style={{ border: 'none' }}
-                onLoad={() => console.log('File loaded successfully')}
+                onLoad={() => console.log('Cloudinary file loaded')}
                 onError={(e) => {
-                  console.error('Google Docs Viewer failed, trying direct URL');
-                  // Try direct Cloudinary URL as fallback
-                  const iframe = e.target;
-                  iframe.src = file.image;
+                  console.error('Viewer failed');
+                  setError('Unable to display file in browser');
                 }}
               />
               
-              {/* Alternative: Direct link if iframe fails */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-700 text-center">
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 text-center border-t">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  If the file doesn't load above, try:
+                  Can't see the file? Try these options:
                 </p>
-                <a
-                  href={file.image}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
-                >
-                  Open in New Tab →
-                </a>
+                <div className="flex gap-4 justify-center flex-wrap">
+                  <a
+                    href={file.image}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+                  >
+                    📄 Open in New Tab
+                  </a>
+                  <a
+                    href={file.image}
+                    download
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+                  >
+                    ⬇️ Download File
+                  </a>
+                </div>
               </div>
             </>
           ) : (
-            // Otherwise use backend API route
-            <iframe
-              src={API_URL ? `${API_URL}/api/file/view/${uuid}` : `/api/file/view/${uuid}`}
-              className="w-full h-[calc(100vh-150px)]"
-              title={file?.title}
-              style={{ border: 'none' }}
-              onError={(e) => {
-                console.error('Iframe error:', e);
-                setError('Unable to load file. Please try downloading instead.');
-              }}
-            />
+            // Old files (local storage) - Show download option
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-150px)] p-8">
+              <div className="text-center max-w-md">
+                <div className="text-6xl mb-4">📄</div>
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                  {file?.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  This file was uploaded before Cloudinary integration. 
+                  Please download it to view.
+                </p>
+                <div className="flex gap-4 justify-center flex-wrap">
+                  <button
+                    onClick={handleDownload}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold transition shadow-lg"
+                  >
+                    ⬇️ Download File
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-4">
+                  💡 Tip: New uploads will be viewable directly in browser
+                </p>
+              </div>
+            </div>
           )}
         </div>
         

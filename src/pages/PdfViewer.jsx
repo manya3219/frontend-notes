@@ -134,15 +134,17 @@ export default function PdfViewer() {
       <div className="max-w-7xl mx-auto p-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           {file?.image && file.image.includes('cloudinary') ? (
-            // If file is on Cloudinary, use direct URL
+            // If file is on Cloudinary, use Google Docs Viewer for better compatibility
             <iframe
-              src={file.image}
+              src={`https://docs.google.com/viewer?url=${encodeURIComponent(file.image)}&embedded=true`}
               className="w-full h-[calc(100vh-150px)]"
               title={file?.title}
               style={{ border: 'none' }}
               onError={(e) => {
                 console.error('Iframe error:', e);
-                setError('Unable to load file. Please try downloading instead.');
+                // Fallback to direct URL
+                const iframe = e.target;
+                iframe.src = file.image;
               }}
             />
           ) : (

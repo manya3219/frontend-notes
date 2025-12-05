@@ -141,43 +141,68 @@ export default function PdfViewer() {
         
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           {file?.image && file.image.includes('cloudinary') ? (
-            // Cloudinary files - Use Google Docs Viewer
-            <>
-              <iframe
-                src={`https://docs.google.com/viewer?url=${encodeURIComponent(file.image)}&embedded=true`}
-                className="w-full h-[calc(100vh-150px)]"
-                title={file?.title}
-                style={{ border: 'none' }}
-                onLoad={() => console.log('Cloudinary file loaded')}
-                onError={(e) => {
-                  console.error('Viewer failed');
-                  setError('Unable to display file in browser');
-                }}
-              />
-              
-              <div className="p-4 bg-gray-50 dark:bg-gray-700 text-center border-t">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Can't see the file? Try these options:
-                </p>
-                <div className="flex gap-4 justify-center flex-wrap">
-                  <a
-                    href={file.image}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
-                  >
-                    📄 Open in New Tab
-                  </a>
-                  <a
-                    href={file.image}
-                    download
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
-                  >
-                    ⬇️ Download File
-                  </a>
+            // Cloudinary files - Direct viewing with fallback options
+            <div className="flex flex-col h-full">
+              {/* Main viewer area */}
+              <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-8">
+                <div className="text-center max-w-2xl">
+                  <div className="text-6xl mb-6">📄</div>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+                    {file?.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Your file is ready! Choose how you'd like to view it:
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                    <a
+                      href={file.image}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
+                    >
+                      <span>🔗</span>
+                      <span>Open in New Tab</span>
+                    </a>
+                    <a
+                      href={file.image}
+                      download={file.title}
+                      className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
+                    >
+                      <span>⬇️</span>
+                      <span>Download File</span>
+                    </a>
+                  </div>
+                  
+                  {/* Direct URL for copying */}
+                  <div className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Direct Link:</p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={file.image}
+                        readOnly
+                        className="flex-1 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300"
+                        onClick={(e) => e.target.select()}
+                      />
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(file.image);
+                          alert('Link copied to clipboard!');
+                        }}
+                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm transition"
+                      >
+                        📋 Copy
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+                    💡 Files are stored securely on Cloudinary CDN
+                  </p>
                 </div>
               </div>
-            </>
+            </div>
           ) : (
             // Old files (local storage) - Show download option
             <div className="flex flex-col items-center justify-center h-[calc(100vh-150px)] p-8">

@@ -100,7 +100,11 @@ const VideoUploadNew = () => {
       }, 1500);
       
     } catch (error) {
-      setMessage('Error creating playlist');
+      console.error('Error creating playlist:', error);
+      console.error('Error response:', error.response?.data);
+      
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error creating playlist';
+      setMessage(errorMessage);
       setLoading(false);
     }
   };

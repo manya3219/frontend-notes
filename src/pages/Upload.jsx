@@ -11,7 +11,7 @@ const Upload = () => {
   const [folders, setFolders] = useState([]);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [useGoogleDrive, setUseGoogleDrive] = useState(false);
+  const [useGoogleDrive, setUseGoogleDrive] = useState(true); // Default to Google Drive
 
   useEffect(() => {
     fetchFolders();
@@ -194,6 +194,43 @@ const Upload = () => {
             </p>
           </div>
         )}
+
+        {/* Storage Type Toggle */}
+        <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-lg border-2 border-blue-200 dark:border-gray-500">
+          <Label className="mb-3 text-lg font-semibold flex items-center gap-2">
+            <span>☁️</span>
+            <span>Storage Location</span>
+          </Label>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => setUseGoogleDrive(true)}
+              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+                useGoogleDrive
+                  ? 'bg-blue-600 text-white shadow-lg scale-105'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+              }`}
+            >
+              📁 Google Drive
+            </button>
+            <button
+              type="button"
+              onClick={() => setUseGoogleDrive(false)}
+              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+                !useGoogleDrive
+                  ? 'bg-purple-600 text-white shadow-lg scale-105'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+              }`}
+            >
+              ☁️ Cloudinary
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-gray-600 dark:text-gray-400 text-center">
+            {useGoogleDrive 
+              ? '✅ Files will open directly in Google Drive viewer' 
+              : '✅ Files will be stored on Cloudinary CDN'}
+          </p>
+        </div>
 
         <div>
           <Label htmlFor="fileInput" value="Choose File *" className="mb-2 text-lg" />

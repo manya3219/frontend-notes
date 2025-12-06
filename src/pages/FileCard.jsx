@@ -13,6 +13,14 @@ export default function FileCard({ file, onDelete }) {
     if (e.target.closest('.delete-btn')) {
       return;
     }
+    
+    // If file is on Google Drive, open directly in new window
+    if (file.storageType === 'googledrive' || file.image?.includes('drive.google.com')) {
+      window.open(file.image, '_blank');
+      return;
+    }
+    
+    // For other files, navigate to viewer page
     navigate(`/view-file/${file.uuid}`);
   };
 

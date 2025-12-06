@@ -56,8 +56,8 @@ export default function App() {
       {/* Admin Only Routes */}
       <Route element={<OnlyAdminPrivateRoute/>}>
         <Route path="/upload" element={<Upload/>}/>
-        <Route path="/VideoUpload" element={<VideoUpload/>}/>
-        <Route path="/video-upload-new" element={<VideoUploadNew/>}/>
+        <Route path="/video-upload" element={<VideoUploadNew/>}/>
+        <Route path="/video-manage" element={<VideoUpload/>}/>
         <Route path="/create-post" element={<CreatePost/>}/>
         <Route path='/update-post/:postId' element={<UpdatePost />} />
       </Route>

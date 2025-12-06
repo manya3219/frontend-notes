@@ -6,9 +6,13 @@ import axios from 'axios';
 function VideoUpload() {
   const [playlists, setPlaylists] = useState([]);
   const [newPlaylist, setNewPlaylist] = useState('');
+  const [newPlaylistFolder, setNewPlaylistFolder] = useState('');
+  const [newPlaylistDescription, setNewPlaylistDescription] = useState('');
+  const [newPlaylistVideos, setNewPlaylistVideos] = useState([{ url: '', title: '' }]);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [videoTitle, setVideoTitle] = useState('');
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const { currentUser } = useSelector((state) => state.user);
 
@@ -19,10 +23,6 @@ function VideoUpload() {
   useEffect(() => {
     if (!currentUser) {
       navigate('/');
-    } else {
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
     }
   }, [currentUser, navigate]);
 
@@ -30,14 +30,49 @@ function VideoUpload() {
     axios.get('/api/playlists').then(response => setPlaylists(response.data));
   }, []);
 
+  const addVideoField = () => {
+    setNewPlaylistVideos([...newPlaylistVideos, { url: '', title: '' }]);
+  };
+
+  const removeVideoField = (index) => {
+    const updated = newPlaylistVideos.filter((_, i) => i !== index);
+    setNewPlaylistVideos(updated);
+  };
+
+  const updateVideoField = (index, field, value) => {
+    const updated = [...newPlaylistVideos];
+    updated[index][field] = value;
+    setNewPlaylistVideos(updated);
+  };
+
   const createPlaylist = async () => {
     if (!newPlaylist.trim() || !currentUser?.isAdmin) return;
     try {
-      const response = await axios.post('/api/playlists', { name: newPlaylist });
+      // Filter out empty video entries and convert URLs to embed format
+      const validVideos = newPlaylistVideos
+        .filter(v => v.url.trim())
+        .map(v => ({
+          url: convertToEmbedUrl(v.url),
+          title: v.title.trim() || 'Untitled Video'
+        }));
+
+      const response = await axios.post('/api/playlists', { 
+        name: newPlaylist,
+        folder: newPlaylistFolder.trim() || null,
+        description: newPlaylistDescription.trim() || null,
+        videos: validVideos
+      });
       setPlaylists([...playlists, response.data]);
+      
+      // Reset form
       setNewPlaylist('');
+      setNewPlaylistFolder('');
+      setNewPlaylistDescription('');
+      setNewPlaylistVideos([{ url: '', title: '' }]);
+      setShowCreateForm(false);
     } catch (err) {
       console.error('Error creating playlist:', err);
+      alert('Failed to create playlist');
     }
   };
 
@@ -90,20 +125,120 @@ function VideoUpload() {
   };
 
   return (
-    <div className="p-4 bg-white  text-black min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-center">🎥 Video Playlist </h1>
+    <div className="p-4 bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-center">🎥 Video Playlist Manager</h1>
 
       {/* Create Playlist */}
       {currentUser?.isAdmin && (
-        <div className="mb-4 flex justify-center gap-2">
-          <input
-            type="text"
-            placeholder="New playlist name"
-            value={newPlaylist}
-            onChange={e => setNewPlaylist(e.target.value)}
-            className="p-2 border rounded-lg text-black"
-          />
-          <button onClick={createPlaylist} className="text-xl p-2 bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-300 rounded-lg  hover:bg-blue-700 rounded">Create Playlist</button>
+        <div className="mb-8 max-w-4xl mx-auto">
+          {!showCreateForm ? (
+            <div className="text-center">
+              <button 
+                onClick={() => setShowCreateForm(true)} 
+                className="px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg transition text-lg font-semibold"
+              >
+                ➕ Create New Playlist
+              </button>
+            </div>
+          ) : (
+            <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+              <h2 className="text-2xl font-bold mb-4 text-center">Create New Playlist</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Playlist Name *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., React Basics"
+                    value={newPlaylist}
+                    onChange={e => setNewPlaylist(e.target.value)}
+                    className="w-full p-3 border rounded-lg text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Folder (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Web Development"
+                    value={newPlaylistFolder}
+                    onChange={e => setNewPlaylistFolder(e.target.value)}
+                    className="w-full p-3 border rounded-lg text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Description (Optional)</label>
+                  <textarea
+                    placeholder="Brief description of this playlist"
+                    value={newPlaylistDescription}
+                    onChange={e => setNewPlaylistDescription(e.target.value)}
+                    className="w-full p-3 border rounded-lg text-black dark:text-white dark:bg-gray-700 dark:border-gray-600"
+                    rows="2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Videos (Optional - Add YouTube URLs)</label>
+                  {newPlaylistVideos.map((video, index) => (
+                    <div key={index} className="flex gap-2 mb-3">
+                      <div className="flex-1 space-y-2">
+                        <input
+                          type="text"
+                          placeholder="Video Title"
+                          value={video.title}
+                          onChange={e => updateVideoField(index, 'title', e.target.value)}
+                          className="w-full p-2 border rounded-lg text-black dark:text-white dark:bg-gray-700 dark:border-gray-600 text-sm"
+                        />
+                        <input
+                          type="text"
+                          placeholder="YouTube URL (e.g., https://www.youtube.com/watch?v=...)"
+                          value={video.url}
+                          onChange={e => updateVideoField(index, 'url', e.target.value)}
+                          className="w-full p-2 border rounded-lg text-black dark:text-white dark:bg-gray-700 dark:border-gray-600 text-sm"
+                        />
+                      </div>
+                      {newPlaylistVideos.length > 1 && (
+                        <button
+                          onClick={() => removeVideoField(index)}
+                          className="px-3 py-2 bg-red-100 hover:bg-red-500 hover:text-white rounded-lg transition text-sm"
+                        >
+                          🗑️
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    onClick={addVideoField}
+                    className="mt-2 px-4 py-2 bg-blue-100 hover:bg-blue-500 hover:text-white rounded-lg transition text-sm"
+                  >
+                    ➕ Add Another Video
+                  </button>
+                </div>
+
+                <div className="flex gap-3 justify-center pt-4">
+                  <button 
+                    onClick={createPlaylist} 
+                    className="px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg transition font-semibold"
+                  >
+                    ✅ Create Playlist
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setShowCreateForm(false);
+                      setNewPlaylist('');
+                      setNewPlaylistFolder('');
+                      setNewPlaylistDescription('');
+                      setNewPlaylistVideos([{ url: '', title: '' }]);
+                    }} 
+                    className="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-black rounded-lg transition font-semibold"
+                  >
+                    ❌ Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

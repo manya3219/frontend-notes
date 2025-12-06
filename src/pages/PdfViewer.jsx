@@ -132,8 +132,8 @@ export default function PdfViewer() {
                 size="sm"
                 className="flex-1 sm:flex-none"
               >
-                <span className="hidden sm:inline">⬇️ Download</span>
-                <span className="sm:hidden">⬇️</span>
+                <span className="hidden sm:inline">🔗 Open</span>
+                <span className="sm:hidden">🔗</span>
               </Button>
               {currentUser?.isAdmin && (
                 <Button
@@ -240,8 +240,8 @@ export default function PdfViewer() {
                         download={file.title}
                         className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg font-semibold transition shadow-lg flex items-center justify-center gap-2"
                       >
-                        <span>⬇️</span>
-                        <span>Download File</span>
+                        <span>🔗</span>
+                        <span>Open File</span>
                       </a>
                       <button
                         onClick={() => {
@@ -275,7 +275,7 @@ export default function PdfViewer() {
                     onClick={handleDownload}
                     className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold transition shadow-lg"
                   >
-                    ⬇️ Download File
+                    🔗 Open File
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-500 mt-4">

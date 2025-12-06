@@ -40,6 +40,14 @@ const Upload = () => {
 
     try {
       setLoading(true);
+
+      // Check file size (16MB limit for MongoDB)
+      if (file.size > 16 * 1024 * 1024) {
+        setMessage('❌ File size must be less than 16MB');
+        setLoading(false);
+        return;
+      }
+
       const formData = new FormData();
       formData.append('myfile', file);
       formData.append('title', title);
@@ -53,9 +61,9 @@ const Upload = () => {
         formData.append('folder', newFolder);
       }
       
-      // Upload to Cloudinary
+      // Upload to MongoDB
       await axios.post('/api/files', formData);
-      setMessage('File uploaded successfully!');
+      setMessage('✅ File uploaded successfully!');
       
       // Reset form
       setTitle('');

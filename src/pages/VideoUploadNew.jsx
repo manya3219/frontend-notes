@@ -76,13 +76,13 @@ const VideoUploadNew = () => {
       
       // Filter and convert video URLs
       const validVideos = videos
-        .filter(v => v.url.trim())
+        .filter(v => v.url && v.url.trim().length > 0)
         .map(v => ({
           url: convertToEmbedUrl(v.url),
           title: v.title.trim() || 'Untitled Video'
         }));
       
-      await axios.post('/api/playlists', {
+      const response = await axios.post('/api/playlists', {
         name: playlistName,
         folder: folderPath,
         description: description,

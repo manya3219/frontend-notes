@@ -412,7 +412,7 @@ const VideoUploadNew = () => {
         </Button>
 
         {message && (
-          <Alert color={message.includes('success') ? 'success' : 'failure'}>
+          <Alert color={message.includes('success') || message.includes('Successfully') || message.includes('added') ? 'success' : 'failure'}>
             {message}
           </Alert>
         )}

@@ -14,16 +14,11 @@ export default function PdfViewer() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Get viewable URL - Cloudinary files
+  // Get viewable URL - Always use backend endpoint
   const getViewableUrl = () => {
     if (!file) return '';
     
-    // Cloudinary files - use direct URL
-    if (file.image && file.image.includes('cloudinary')) {
-      return file.image;
-    }
-    
-    // Local files - use backend proxy
+    // All files served from MongoDB via backend
     const baseUrl = API_URL || '';
     return `${baseUrl}/api/file/view/${uuid}`;
   };
@@ -63,13 +58,9 @@ export default function PdfViewer() {
   };
 
   const handleDownload = () => {
-    // Download from Cloudinary or backend
-    if (file?.image && file.image.includes('cloudinary')) {
-      window.open(file.image, '_blank');
-    } else {
-      const downloadUrl = API_URL ? `${API_URL}/file/download/${uuid}` : `/file/download/${uuid}`;
-      window.open(downloadUrl, '_blank');
-    }
+    // Download from MongoDB via backend
+    const downloadUrl = API_URL ? `${API_URL}/api/file/view/${uuid}` : `/api/file/view/${uuid}`;
+    window.open(downloadUrl, '_blank');
   };
 
   const handleDelete = async () => {

@@ -82,12 +82,16 @@ const VideoUploadNew = () => {
           title: v.title.trim() || 'Untitled Video'
         }));
       
-      const response = await axios.post('/api/playlists', {
+      const playlistData = {
         name: playlistName,
         folder: folderPath,
         description: description,
         videos: validVideos
-      });
+      };
+      
+      console.log('Sending playlist data:', playlistData);
+      
+      const response = await axios.post('/api/playlists', playlistData);
       
       const videoCount = validVideos.length;
       setMessage(`Playlist created successfully${videoCount > 0 ? ` with ${videoCount} video(s)` : ''}!`);
@@ -103,7 +107,13 @@ const VideoUploadNew = () => {
       console.error('Error creating playlist:', error);
       console.error('Error response:', error.response?.data);
       
-      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error creating playlist';
+      let errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error creating playlist';
+      
+      // Check for duplicate name error
+      if (errorMessage.includes('E11000') || errorMessage.includes('duplicate key')) {
+        errorMessage = `Playlist name "${playlistName}" already exists. Please use a different name.`;
+      }
+      
       setMessage(errorMessage);
       setLoading(false);
     }

@@ -22,6 +22,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { Link, useNavigate } from 'react-router-dom';
+import { getApiUrl } from '../utils/api';
 
 export default function DashProfile() {
   const { currentUser, error, loading } = useSelector((state) => state.user);
@@ -112,18 +113,21 @@ export default function DashProfile() {
     }
     try {
       dispatch(updateStart());
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+      const res = await fetch(getApiUrl(`/api/user/update/${currentUser._id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
-      const data = await res.json();
+      
       if (!res.ok) {
+        const data = await res.json();
         dispatch(updateFailure(data.message));
         setUpdateUserError(data.message);
       } else {
+        const data = await res.json();
         dispatch(updateSuccess(data));
         setUpdateUserSuccess("User's profile updated successfully");
       }
@@ -136,8 +140,9 @@ export default function DashProfile() {
     setShowModal(false);
     try {
       dispatch(deleteUserStart());
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+      const res = await fetch(getApiUrl(`/api/user/delete/${currentUser._id}`), {
         method: 'DELETE',
+        credentials: 'include'
       });
       const data = await res.json();
       if (!res.ok) {
@@ -152,7 +157,7 @@ export default function DashProfile() {
 
   const handleSignout = async () => {
     try {
-      const res = await fetch('/api/user/signout', {
+      const res = await fetch(getApiUrl('/api/user/signout'), {
         method: 'POST',
         credentials: 'include',
       });

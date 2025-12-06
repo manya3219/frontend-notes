@@ -12,6 +12,7 @@ const VideoUploadNew = () => {
   const [folders, setFolders] = useState([]);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [videos, setVideos] = useState([{ title: '', url: '' }]);
 
   // Require admin access (prevents redirect on refresh)
   const currentUser = useAuthRedirect(true);
@@ -33,6 +34,26 @@ const VideoUploadNew = () => {
     }
   };
 
+  const convertToEmbedUrl = (url) => {
+    if (!url) return '';
+    const videoIdMatch = url.match(/(?:v=|youtu\.be\/|\/embed\/)([\w-]+)/);
+    return videoIdMatch ? `https://www.youtube.com/embed/${videoIdMatch[1]}` : url;
+  };
+
+  const addVideoField = () => {
+    setVideos([...videos, { title: '', url: '' }]);
+  };
+
+  const removeVideoField = (index) => {
+    setVideos(videos.filter((_, i) => i !== index));
+  };
+
+  const updateVideo = (index, field, value) => {
+    const updated = [...videos];
+    updated[index][field] = value;
+    setVideos(updated);
+  };
+
   const handleUpload = async () => {
     if (!playlistName) {
       setMessage('Please enter playlist name');
@@ -51,13 +72,23 @@ const VideoUploadNew = () => {
         folderPath = newFolder;
       }
       
+      // Filter and convert video URLs
+      const validVideos = videos
+        .filter(v => v.url.trim())
+        .map(v => ({
+          url: convertToEmbedUrl(v.url),
+          title: v.title.trim() || 'Untitled Video'
+        }));
+      
       await axios.post('/api/playlists', {
         name: playlistName,
         folder: folderPath,
-        description: description
+        description: description,
+        videos: validVideos
       });
       
-      setMessage('Playlist created successfully!');
+      const videoCount = validVideos.length;
+      setMessage(`Playlist created successfully${videoCount > 0 ? ` with ${videoCount} video(s)` : ''}!`);
       
       // Reset form
       setPlaylistName('');
@@ -65,6 +96,7 @@ const VideoUploadNew = () => {
       setFolderOption('none');
       setNewFolder('');
       setExistingFolder('');
+      setVideos([{ title: '', url: '' }]);
       
       // Refresh folders list
       await fetchFolders();
@@ -110,6 +142,68 @@ const VideoUploadNew = () => {
             placeholder="Enter playlist description"
             rows={3}
           />
+        </div>
+
+        {/* YouTube Videos Section */}
+        <div className="border-t pt-6 border-gray-200 dark:border-gray-700">
+          <Label value="📹 Add YouTube Videos (Optional)" className="mb-3 text-lg font-semibold" />
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Add YouTube videos to this playlist by pasting video URLs
+          </p>
+          
+          {videos.map((video, index) => (
+            <div key={index} className="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Video {index + 1}
+                </span>
+                {videos.length > 1 && (
+                  <Button
+                    size="xs"
+                    color="failure"
+                    onClick={() => removeVideoField(index)}
+                  >
+                    🗑️ Remove
+                  </Button>
+                )}
+              </div>
+              
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor={`videoTitle${index}`} value="Video Title" className="mb-1 text-sm" />
+                  <TextInput
+                    id={`videoTitle${index}`}
+                    type="text"
+                    value={video.title}
+                    onChange={(e) => updateVideo(index, 'title', e.target.value)}
+                    placeholder="e.g., Introduction to React"
+                    sizing="sm"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor={`videoUrl${index}`} value="YouTube URL" className="mb-1 text-sm" />
+                  <TextInput
+                    id={`videoUrl${index}`}
+                    type="text"
+                    value={video.url}
+                    onChange={(e) => updateVideo(index, 'url', e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    sizing="sm"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          <Button
+            onClick={addVideoField}
+            color="light"
+            size="sm"
+            className="w-full"
+          >
+            ➕ Add Another Video
+          </Button>
         </div>
 
         <div>

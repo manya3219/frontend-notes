@@ -305,36 +305,23 @@ export default function DashProfile() {
         
       </form>
       
-      {/* Admin Upload Buttons */}
+      {/* Admin Actions */}
       {currentUser.isAdmin && (
         <div className='mt-6 sm:mt-8 p-4 sm:p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 rounded-lg border-2 border-purple-200 dark:border-gray-500'>
           <h2 className='text-lg sm:text-xl font-bold text-gray-800 dark:text-white mb-4 text-center'>
             📤 Admin Actions
           </h2>
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
-            <Link to='/upload'>
-              <Button
-                gradientDuoTone='purpleToPink'
-                className='w-full'
-                size='lg'
-              >
-                <span className='flex items-center justify-center gap-2'>
-                  📄 Upload Files
-                </span>
-              </Button>
-            </Link>
-            <Link to='/video-upload'>
-              <Button
-                gradientDuoTone='pinkToOrange'
-                className='w-full'
-                size='lg'
-              >
-                <span className='flex items-center justify-center gap-2'>
-                  🎥 Create Playlist
-                </span>
-              </Button>
-            </Link>
-          </div>
+          <Link to='/video-upload'>
+            <Button
+              gradientDuoTone='pinkToOrange'
+              className='w-full'
+              size='lg'
+            >
+              <span className='flex items-center justify-center gap-2'>
+                🎥 Create Playlist
+              </span>
+            </Button>
+          </Link>
         </div>
       )}
       

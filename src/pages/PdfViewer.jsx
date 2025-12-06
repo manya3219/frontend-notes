@@ -14,13 +14,21 @@ export default function PdfViewer() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Get viewable URL - Direct Cloudinary URL for best compatibility
+  // Get viewable URL - Support multiple storage types
   const getViewableUrl = () => {
-    if (file?.image && file.image.includes('cloudinary')) {
-      // For Cloudinary files, use direct URL
+    if (!file) return '';
+    
+    // Google Drive files - use embed link directly
+    if (file.storageType === 'googledrive' || file.image?.includes('drive.google.com')) {
       return file.image;
     }
-    // For local files, use backend proxy
+    
+    // Cloudinary files - use direct URL
+    if (file.image && file.image.includes('cloudinary')) {
+      return file.image;
+    }
+    
+    // Local files - use backend proxy
     const baseUrl = API_URL || '';
     return `${baseUrl}/api/file/view/${uuid}`;
   };

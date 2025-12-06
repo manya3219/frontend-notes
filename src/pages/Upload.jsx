@@ -11,6 +11,7 @@ const Upload = () => {
   const [folders, setFolders] = useState([]);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [useGoogleDrive, setUseGoogleDrive] = useState(false);
 
   useEffect(() => {
     fetchFolders();
@@ -52,8 +53,16 @@ const Upload = () => {
         formData.append('folder', newFolder);
       }
       
-      await axios.post('/api/files', formData);
-      setMessage('File uploaded successfully!');
+      // Choose endpoint based on storage type
+      const endpoint = useGoogleDrive ? '/api/files/gdrive' : '/api/files';
+      const response = await axios.post(endpoint, formData);
+      
+      // If Google Drive not configured, fallback to Cloudinary
+      if (response.data.useCloudinary) {
+        await axios.post('/api/files', formData);
+      }
+      
+      setMessage(`File uploaded successfully to ${useGoogleDrive ? 'Google Drive' : 'Cloudinary'}!`);
       
       // Reset form
       setTitle('');

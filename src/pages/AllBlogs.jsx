@@ -23,22 +23,31 @@ export default function AllBlogs() {
   const fetchPosts = async (startIndex = 0) => {
     try {
       setLoading(true);
-      const res = await fetch(
-        getApiUrl(`/api/post/getposts?sort=${sortOrder}&category=${category}&startIndex=${startIndex}`),
-        { credentials: 'include' }
-      );
+      const url = getApiUrl(`/api/post/getposts?sort=${sortOrder}&category=${category !== 'uncategorized' ? category : ''}&startIndex=${startIndex}`);
+      console.log('Fetching posts from:', url);
+      
+      const res = await fetch(url, { credentials: 'include' });
       const data = await res.json();
       
-      if (startIndex === 0) {
-        setPosts(data.posts);
+      console.log('Posts fetched:', data.posts?.length || 0);
+      
+      if (res.ok && data.posts) {
+        if (startIndex === 0) {
+          setPosts(data.posts);
+        } else {
+          setPosts([...posts, ...data.posts]);
+        }
+        
+        setShowMore(data.posts.length === 9);
       } else {
-        setPosts([...posts, ...data.posts]);
+        console.error('Failed to fetch posts:', data);
+        setPosts([]);
       }
       
-      setShowMore(data.posts.length === 9);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching posts:', error);
+      setPosts([]);
       setLoading(false);
     }
   };

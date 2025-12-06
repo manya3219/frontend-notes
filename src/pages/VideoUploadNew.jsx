@@ -151,10 +151,12 @@ const VideoUploadNew = () => {
       console.error('Error creating playlist:', error);
       console.error('Error response:', error.response?.data);
       
-      let errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error creating playlist';
+      // Get error message from various possible fields
+      let errorMessage = error.response?.data?.message || error.response?.data?.error || error.response?.data?.details || 'Error creating playlist';
       
-      // Check for duplicate name error
-      if (errorMessage.includes('E11000') || errorMessage.includes('duplicate key') || errorMessage.includes('dup key')) {
+      // Check for duplicate name error in any field
+      const errorString = JSON.stringify(error.response?.data || {});
+      if (errorString.includes('E11000') || errorString.includes('duplicate key') || errorString.includes('dup key')) {
         errorMessage = `❌ Duplicate playlist name! "${playlistName}" already exists. Please choose a different name.`;
       }
       

@@ -6,12 +6,15 @@ import { useNavigate } from 'react-router-dom';
 
 const VideoUploadNew = () => {
   const navigate = useNavigate();
+  const [mode, setMode] = useState('create'); // 'create' or 'add'
   const [playlistName, setPlaylistName] = useState('');
   const [description, setDescription] = useState('');
   const [folderOption, setFolderOption] = useState('none');
   const [existingFolder, setExistingFolder] = useState('');
   const [newFolder, setNewFolder] = useState('');
   const [folders, setFolders] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [videos, setVideos] = useState([{ title: '', url: '' }]);
@@ -28,11 +31,52 @@ const VideoUploadNew = () => {
   const fetchFolders = async () => {
     try {
       const response = await axios.get('/api/playlists');
-      const playlists = response.data;
-      const uniqueFolders = [...new Set(playlists.filter(p => p.folder).map(p => p.folder))];
+      const playlistsData = response.data;
+      setPlaylists(playlistsData);
+      const uniqueFolders = [...new Set(playlistsData.filter(p => p.folder).map(p => p.folder))];
       setFolders(uniqueFolders);
     } catch (error) {
       console.log('Error fetching folders:', error);
+    }
+  };
+
+  const addVideosToExistingPlaylist = async () => {
+    if (!selectedPlaylistId) {
+      setMessage('Please select a playlist');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const validVideos = videos.filter(v => v.url && v.url.trim().length > 0);
+
+      if (validVideos.length === 0) {
+        setMessage('Please add at least one video');
+        setLoading(false);
+        return;
+      }
+
+      // Add videos one by one
+      for (const video of validVideos) {
+        await axios.post(`/api/playlists/${selectedPlaylistId}/videos`, {
+          url: convertToEmbedUrl(video.url),
+          title: video.title.trim() || 'Untitled Video'
+        });
+      }
+
+      setMessage(`Successfully added ${validVideos.length} video(s) to playlist!`);
+      setLoading(false);
+      setVideos([{ title: '', url: '' }]);
+
+      setTimeout(() => {
+        navigate('/video-list');
+      }, 1500);
+
+    } catch (error) {
+      console.error('Error adding videos:', error);
+      setMessage('Error adding videos to playlist');
+      setLoading(false);
     }
   };
 
@@ -122,10 +166,67 @@ const VideoUploadNew = () => {
   return (
     <div className="max-w-2xl mx-auto mt-4 sm:mt-10 p-4 sm:p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg my-4 sm:my-10">
       <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-6 text-center">
-        🎥 NexaHub - Create Video Playlist
+        🎥 NexaHub - Video Playlist Manager
       </h1>
+
+      {/* Mode Selector */}
+      <div className="mb-6">
+        <Label value="What would you like to do?" className="mb-2 text-lg font-semibold" />
+        <div className="flex gap-4">
+          <button
+            onClick={() => setMode('create')}
+            className={`flex-1 p-3 rounded-lg border-2 transition ${
+              mode === 'create'
+                ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                : 'border-gray-300 dark:border-gray-600 hover:border-purple-300'
+            }`}
+          >
+            <div className="text-center">
+              <div className="text-2xl mb-1">➕</div>
+              <div className="font-semibold">Create New Playlist</div>
+              <div className="text-xs opacity-75">With videos</div>
+            </div>
+          </button>
+          <button
+            onClick={() => setMode('add')}
+            className={`flex-1 p-3 rounded-lg border-2 transition ${
+              mode === 'add'
+                ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                : 'border-gray-300 dark:border-gray-600 hover:border-purple-300'
+            }`}
+          >
+            <div className="text-center">
+              <div className="text-2xl mb-1">📹</div>
+              <div className="font-semibold">Add to Existing</div>
+              <div className="text-xs opacity-75">Add videos to playlist</div>
+            </div>
+          </button>
+        </div>
+      </div>
       
-      <div className="space-y-6">
+      <div className="space-y-6">{mode === 'add' && (
+          <>
+            <div>
+              <Label htmlFor="selectPlaylist" value="Select Playlist *" className="mb-2 text-lg" />
+              <Select
+                id="selectPlaylist"
+                value={selectedPlaylistId}
+                onChange={(e) => setSelectedPlaylistId(e.target.value)}
+                required
+              >
+                <option value="">Choose a playlist...</option>
+                {playlists.map((playlist) => (
+                  <option key={playlist._id} value={playlist._id}>
+                    {playlist.folder ? `📁 ${playlist.folder} / ` : ''}🎥 {playlist.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </>
+        )}
+
+        {mode === 'create' && (
+          <>
         <div>
           <Label htmlFor="playlistName" value="Playlist Name *" className="mb-2 text-lg" />
           <TextInput
@@ -294,14 +395,17 @@ const VideoUploadNew = () => {
           </div>
         )}
 
+        </>
+        )}
+
         <Button
-          onClick={handleUpload}
-          disabled={!playlistName || loading}
+          onClick={mode === 'create' ? handleUpload : addVideosToExistingPlaylist}
+          disabled={mode === 'create' ? (!playlistName || loading) : (!selectedPlaylistId || loading)}
           gradientDuoTone="purpleToPink"
           className="w-full"
           size="lg"
         >
-          {loading ? 'Creating...' : 'Create Playlist'}
+          {loading ? (mode === 'create' ? 'Creating...' : 'Adding...') : (mode === 'create' ? 'Create Playlist' : 'Add Videos to Playlist')}
         </Button>
 
         {message && (

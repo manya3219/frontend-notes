@@ -154,8 +154,8 @@ const VideoUploadNew = () => {
       let errorMessage = error.response?.data?.message || error.response?.data?.error || 'Error creating playlist';
       
       // Check for duplicate name error
-      if (errorMessage.includes('E11000') || errorMessage.includes('duplicate key')) {
-        errorMessage = `Playlist name "${playlistName}" already exists. Please use a different name.`;
+      if (errorMessage.includes('E11000') || errorMessage.includes('duplicate key') || errorMessage.includes('dup key')) {
+        errorMessage = `❌ Duplicate playlist name! "${playlistName}" already exists. Please choose a different name.`;
       }
       
       setMessage(errorMessage);

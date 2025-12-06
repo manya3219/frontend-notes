@@ -99,22 +99,6 @@ export default function DashSidebar() {
           )}
           {currentUser.isAdmin && (
             <>
-              <Link to='/upload'>
-                <Sidebar.Item
-                  icon={HiUpload}
-                  as='div'
-                >
-                  Upload Files
-                </Sidebar.Item>
-              </Link>
-              <Link to='/video-upload'>
-                <Sidebar.Item
-                  icon={HiVideoCamera}
-                  as='div'
-                >
-                  Create Playlist
-                </Sidebar.Item>
-              </Link>
               <Link to='/dashboard?tab=users'>
                 <Sidebar.Item
                   active={tab === 'users'}

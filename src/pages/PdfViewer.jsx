@@ -267,8 +267,7 @@ export default function PdfViewer() {
                   {file?.title}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  This file was uploaded before Cloudinary integration. 
-                  Please download it to view.
+                  Click the button below to open this file.
                 </p>
                 <div className="flex gap-4 justify-center flex-wrap">
                   <button
@@ -278,9 +277,7 @@ export default function PdfViewer() {
                     🔗 Open File
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-500 mt-4">
-                  💡 Tip: New uploads will be viewable directly in browser
-                </p>
+
               </div>
             </div>
           )}

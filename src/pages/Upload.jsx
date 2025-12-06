@@ -81,8 +81,14 @@ const Upload = () => {
       }, 3000);
       
     } catch (error) {
-      setMessage('Error uploading file');
+      console.error('Upload error:', error);
+      setMessage('Error uploading file: ' + (error.response?.data?.error || error.message));
       setLoading(false);
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => {
+        setMessage('');
+      }, 5000);
     }
   };
 

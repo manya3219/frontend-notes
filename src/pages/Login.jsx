@@ -81,7 +81,7 @@ export default function Login() {
               <Label value='Your password' />
               <TextInput
                 type='password'
-                placeholder=''
+                placeholder='Enter User Password'
                 id='password'
                 onChange={handleChange}
               />

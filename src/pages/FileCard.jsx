@@ -14,13 +14,7 @@ export default function FileCard({ file, onDelete }) {
       return;
     }
     
-    // If file is on Google Drive, open directly in new window
-    if (file.storageType === 'googledrive' || file.image?.includes('drive.google.com')) {
-      window.open(file.image, '_blank');
-      return;
-    }
-    
-    // For other files, navigate to viewer page
+    // Navigate to viewer page
     navigate(`/view-file/${file.uuid}`);
   };
 

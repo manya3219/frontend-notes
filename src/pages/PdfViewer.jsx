@@ -14,14 +14,9 @@ export default function PdfViewer() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Get viewable URL - Support multiple storage types
+  // Get viewable URL - Cloudinary files
   const getViewableUrl = () => {
     if (!file) return '';
-    
-    // Google Drive files - use embed link directly
-    if (file.storageType === 'googledrive' || file.image?.includes('drive.google.com')) {
-      return file.image;
-    }
     
     // Cloudinary files - use direct URL
     if (file.image && file.image.includes('cloudinary')) {
@@ -68,11 +63,10 @@ export default function PdfViewer() {
   };
 
   const handleDownload = () => {
-    // For Cloudinary files, download directly from Cloudinary
+    // Download from Cloudinary or backend
     if (file?.image && file.image.includes('cloudinary')) {
       window.open(file.image, '_blank');
     } else {
-      // For local files, use backend download route
       const downloadUrl = API_URL ? `${API_URL}/file/download/${uuid}` : `/file/download/${uuid}`;
       window.open(downloadUrl, '_blank');
     }

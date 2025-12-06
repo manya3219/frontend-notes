@@ -23,7 +23,11 @@ export default function AllBlogs() {
   const fetchPosts = async (startIndex = 0) => {
     try {
       setLoading(true);
-      const url = getApiUrl(`/api/post/getposts?sort=${sortOrder}&category=${category !== 'uncategorized' ? category : ''}&startIndex=${startIndex}`);
+      // Build URL - only add category if it's not 'uncategorized' (All)
+      let url = getApiUrl(`/api/post/getposts?order=${sortOrder}&startIndex=${startIndex}`);
+      if (category && category !== 'uncategorized') {
+        url += `&category=${category}`;
+      }
       console.log('Fetching posts from:', url);
       
       const res = await fetch(url, { credentials: 'include' });

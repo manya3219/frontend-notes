@@ -227,30 +227,32 @@ const VideoUploadNew = () => {
 
         {mode === 'create' && (
           <>
-        <div>
-          <Label htmlFor="playlistName" value="Playlist Name *" className="mb-2 text-lg" />
-          <TextInput
-            id="playlistName"
-            type="text"
-            value={playlistName}
-            onChange={(e) => setPlaylistName(e.target.value)}
-            placeholder="Enter playlist name"
-            required
-          />
-        </div>
+            <div>
+              <Label htmlFor="playlistName" value="Playlist Name *" className="mb-2 text-lg" />
+              <TextInput
+                id="playlistName"
+                type="text"
+                value={playlistName}
+                onChange={(e) => setPlaylistName(e.target.value)}
+                placeholder="Enter playlist name"
+                required
+              />
+            </div>
 
-        <div>
-          <Label htmlFor="description" value="Description (Optional)" className="mb-2 text-lg" />
-          <Textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter playlist description"
-            rows={3}
-          />
-        </div>
+            <div>
+              <Label htmlFor="description" value="Description (Optional)" className="mb-2 text-lg" />
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter playlist description"
+                rows={3}
+              />
+            </div>
+          </>
+        )}
 
-        {/* YouTube Videos Section */}
+        {/* YouTube Videos Section - Available in both modes */}
         <div className="border-t pt-6 border-gray-200 dark:border-gray-700">
           <Label value="📹 Add YouTube Videos (Optional)" className="mb-3 text-lg font-semibold" />
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -312,19 +314,21 @@ const VideoUploadNew = () => {
           </Button>
         </div>
 
-        <div>
-          <Label htmlFor="folderOption" value="Folder Option" className="mb-2 text-lg" />
-          <Select
-            id="folderOption"
-            value={folderOption}
-            onChange={(e) => setFolderOption(e.target.value)}
-          >
-            <option value="none">No Folder</option>
-            <option value="existing">Select Existing Folder</option>
-            <option value="nested">Create Nested Folder in Existing</option>
-            <option value="new">Create New Folder</option>
-          </Select>
-        </div>
+        {mode === 'create' && (
+          <>
+            <div>
+              <Label htmlFor="folderOption" value="Folder Option" className="mb-2 text-lg" />
+              <Select
+                id="folderOption"
+                value={folderOption}
+                onChange={(e) => setFolderOption(e.target.value)}
+              >
+                <option value="none">No Folder</option>
+                <option value="existing">Select Existing Folder</option>
+                <option value="nested">Create Nested Folder in Existing</option>
+                <option value="new">Create New Folder</option>
+              </Select>
+            </div>
 
         {folderOption === 'existing' && folders.length > 0 && (
           <div>
@@ -379,23 +383,22 @@ const VideoUploadNew = () => {
           </div>
         )}
 
-        {folderOption === 'new' && (
-          <div>
-            <Label htmlFor="newFolder" value="New Folder Name" className="mb-2" />
-            <TextInput
-              id="newFolder"
-              type="text"
-              value={newFolder}
-              onChange={(e) => setNewFolder(e.target.value)}
-              placeholder="Enter folder name (e.g., Tutorials or Tutorials/React)"
-            />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Tip: Use "/" to create nested folders (e.g., "Tutorials/React/Basics")
-            </p>
-          </div>
-        )}
-
-        </>
+            {folderOption === 'new' && (
+              <div>
+                <Label htmlFor="newFolder" value="New Folder Name" className="mb-2" />
+                <TextInput
+                  id="newFolder"
+                  type="text"
+                  value={newFolder}
+                  onChange={(e) => setNewFolder(e.target.value)}
+                  placeholder="Enter folder name (e.g., Tutorials or Tutorials/React)"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Tip: Use "/" to create nested folders (e.g., "Tutorials/React/Basics")
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         <Button

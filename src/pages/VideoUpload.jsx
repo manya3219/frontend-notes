@@ -8,6 +8,7 @@ function VideoUpload() {
   const [newPlaylist, setNewPlaylist] = useState('');
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [videoUrl, setVideoUrl] = useState('');
+  const [videoTitle, setVideoTitle] = useState('');
 
   const { currentUser } = useSelector((state) => state.user);
 
@@ -49,12 +50,16 @@ function VideoUpload() {
     if (!selectedPlaylist || !videoUrl.trim() || !currentUser?.isAdmin) return;
     const embedUrl = convertToEmbedUrl(videoUrl);
     try {
-      const response = await axios.post(`/api/playlists/${selectedPlaylist._id}/videos`, { url: embedUrl });
+      const response = await axios.post(`/api/playlists/${selectedPlaylist._id}/videos`, { 
+        url: embedUrl,
+        title: videoTitle.trim() || 'Untitled Video'
+      });
       const updatedPlaylist = response.data;
       const updatedPlaylists = playlists.map(p => (p._id === selectedPlaylist._id ? updatedPlaylist : p));
       setPlaylists(updatedPlaylists);
       setSelectedPlaylist(updatedPlaylist);
       setVideoUrl('');
+      setVideoTitle('');
     } catch (err) {
       console.error('Error adding video:', err);
     }
@@ -131,46 +136,70 @@ function VideoUpload() {
 
       {/* Add Video */}
       {selectedPlaylist && currentUser?.isAdmin && (
-        <div className="mb-4 text-center">
-          <h2 className="text-xl font-bold mb-2">Add Video to {selectedPlaylist.name}</h2>
-          <input
-            type="text"
-            placeholder="Video URL (e.g., YouTube link)"
-            value={videoUrl}
-            onChange={e => setVideoUrl(e.target.value)}
-            className="p-2 border rounded-lg text-black"
-          />
-          <button onClick={addVideo} className="ml-2 p-2 bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-300 rounded-lg  hover:bg-green-700 ">Add Video</button>
+        <div className="mb-4 text-center max-w-2xl mx-auto">
+          <h2 className="text-xl font-bold mb-4">Add Video to {selectedPlaylist.name}</h2>
+          <div className="space-y-3">
+            <input
+              type="text"
+              placeholder="Video Title (e.g., Introduction to React)"
+              value={videoTitle}
+              onChange={e => setVideoTitle(e.target.value)}
+              className="w-full p-3 border rounded-lg text-black"
+            />
+            <input
+              type="text"
+              placeholder="YouTube URL (e.g., https://www.youtube.com/watch?v=...)"
+              value={videoUrl}
+              onChange={e => setVideoUrl(e.target.value)}
+              className="w-full p-3 border rounded-lg text-black"
+            />
+            <button 
+              onClick={addVideo} 
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-300 rounded-lg hover:shadow-lg transition"
+            >
+              ➕ Add Video
+            </button>
+          </div>
         </div>
       )}
 
       {/* Display Videos */}
       {selectedPlaylist && (
         <div className="text-center">
-          <h2 className="text-xl font-bold mb-2">Videos in {selectedPlaylist.name}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <h2 className="text-xl font-bold mb-4">Videos in {selectedPlaylist.name}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {selectedPlaylist.videos.length > 0 ? (
               selectedPlaylist.videos.map((video, index) => (
-                <div key={index} className="mb-4">
+                <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                  {video.title && (
+                    <div className="p-3 bg-gradient-to-r from-indigo-100 to-purple-100">
+                      <h3 className="font-semibold text-gray-800 truncate">{video.title}</h3>
+                    </div>
+                  )}
                   <iframe
                     width="100%"
                     height="200"
                     src={video.url}
-                    title="Video Player"
+                    title={video.title || "Video Player"}
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                    className="rounded-lg shadow-lg"
+                    className="w-full"
                   ></iframe>
                   {currentUser?.isAdmin && (
-                    <div className="mt-2">
-                      <button onClick={() => deleteVideo(index)} className="p-2 bg-red-100 hover:bg-red-500 rounded-lg text-black">Delete</button>
+                    <div className="p-2 bg-gray-50">
+                      <button 
+                        onClick={() => deleteVideo(index)} 
+                        className="w-full p-2 bg-red-100 hover:bg-red-500 hover:text-white rounded-lg text-black transition"
+                      >
+                        🗑️ Delete
+                      </button>
                     </div>
                   )}
                 </div>
               ))
             ) : (
-              <p>No videos in this playlist yet.</p>
+              <p className="col-span-full text-gray-500">No videos in this playlist yet.</p>
             )}
           </div>
         </div>

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FileInput, Label, TextInput, Button, Select, Alert, Textarea } from "flowbite-react";
 import { useAuthRedirect } from '../hooks/useAuthRedirect';
+import { useNavigate } from 'react-router-dom';
 
 const VideoUploadNew = () => {
+  const navigate = useNavigate();
   const [playlistName, setPlaylistName] = useState('');
   const [description, setDescription] = useState('');
   const [folderOption, setFolderOption] = useState('none');
@@ -90,23 +92,12 @@ const VideoUploadNew = () => {
       const videoCount = validVideos.length;
       setMessage(`Playlist created successfully${videoCount > 0 ? ` with ${videoCount} video(s)` : ''}!`);
       
-      // Reset form
-      setPlaylistName('');
-      setDescription('');
-      setFolderOption('none');
-      setNewFolder('');
-      setExistingFolder('');
-      setVideos([{ title: '', url: '' }]);
-      
-      // Refresh folders list
-      await fetchFolders();
-      
       setLoading(false);
       
-      // Clear success message after 3 seconds
+      // Redirect to video list page after 1.5 seconds
       setTimeout(() => {
-        setMessage('');
-      }, 3000);
+        navigate('/video-list');
+      }, 1500);
       
     } catch (error) {
       setMessage('Error creating playlist');

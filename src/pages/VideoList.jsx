@@ -143,32 +143,32 @@ const VideoList = () => {
           <p className='text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6'>{selectedPlaylist.description}</p>
         )}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {selectedPlaylist.videos.map((video, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
-              <iframe
-                width="100%"
-                height="200"
-                src={convertToEmbedUrl(video.url)}
-                title={video.title || `Video ${index + 1}`}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full rounded-t-lg"
-              />
-              {video.title && (
-                <div className="p-4 bg-white dark:bg-gray-800">
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{video.title}</h3>
-                  {video.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{video.description}</p>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        
-        {selectedPlaylist.videos.length === 0 && (
+        {selectedPlaylist.videos && selectedPlaylist.videos.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {selectedPlaylist.videos.map((video, index) => (
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                <iframe
+                  width="100%"
+                  height="200"
+                  src={convertToEmbedUrl(video.url)}
+                  title={video.title || `Video ${index + 1}`}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full rounded-t-lg"
+                />
+                {video.title && (
+                  <div className="p-4 bg-white dark:bg-gray-800">
+                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{video.title}</h3>
+                    {video.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{video.description}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
           <p className='text-gray-500 dark:text-gray-400 text-center mt-10'>No videos in this playlist yet.</p>
         )}
       </main>
